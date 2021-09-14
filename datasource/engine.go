@@ -27,6 +27,7 @@ func NewMysqlEngine() *xorm.Engine {
 		new(model.Estimate),
 		new(model.EstimateDetail),
 		new(model.Order),
+		new(model.Delivery),
 		new(model.Customer),
 		new(model.Product),
 		new(model.Category))

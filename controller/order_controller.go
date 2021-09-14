@@ -10,8 +10,8 @@ import (
 )
 
 func (or *OrderController) BeforeActivation(ba mvc.BeforeActivation) {
-	//通过estimate_code获取对应的注文列表
-	ba.Handle("GET", "/all/{project_code}", "GetAllByEstimateCode")
+	//通过project_code获取对应的注文列表
+	ba.Handle("GET", "/all/{project_code}", "GetAllByProjectCode")
 	//通过order_code获取对应的注文列表
 	ba.Handle("GET", "/one/{order_code}", "GetOneByOrderCode")
 }
@@ -23,11 +23,11 @@ type OrderController struct {
 }
 
 /**
- * url: /v1/order/all/{estimate_code}
+ * url: /v1/order/all/{project_code}
  * type：GET
- * descs：通过见积CD获取所有注文功能
+ * descs：通过案件CD获取所有注文功能
  */
-func (or *OrderController) GetAllByEstimateCode() mvc.Result {
+func (or *OrderController) GetAllByProjectCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/order/all/{project_code} Controller:OrderController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
@@ -91,7 +91,7 @@ func (or *OrderController) GetOneByOrderCode() mvc.Result {
 	for _, item := range order {
 		respList = append(respList, item.OrderToRespDesc())
 	}
-	iris.New().Logger().Info(respList)
+
 	//返回注文列表
 	iris.New().Logger().Info(COMMENT + "End")
 	return mvc.Response{
@@ -109,7 +109,7 @@ func (or *OrderController) GetOneByOrderCode() mvc.Result {
  */
 type AddOrderEntity struct {
 	Id                   int64  `json:"id"`
-	OrderCode            string    `json:"order_code"`
+	OrderCode            string `json:"order_code"`
 	EstimateCode         string `json:"estimate_code"`
 	ProjectCode          string `json:"project_code"`
 	ProjectName          string `json:"project_name"`
@@ -240,7 +240,7 @@ func (or *OrderController) Put() mvc.Result {
 	orderInfo.CreatedBy = orderEntity.CreatedBy
 	orderInfo.IsDelete = orderEntity.IsDelete
 
-	isSuccess := or.OrderService.UpdateOrder(orderEntity.OrderCode,orderInfo)
+	isSuccess := or.OrderService.UpdateOrder(orderEntity.OrderCode, orderInfo)
 	if !isSuccess {
 		iris.New().Logger().Error(COMMENT + "ERR")
 		return mvc.Response{

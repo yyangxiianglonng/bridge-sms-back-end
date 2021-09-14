@@ -97,6 +97,15 @@ func mvcHandle(app *iris.Application) {
 	)
 	order.Handle(new(controller.OrderController))
 
+	//纳品功能模块
+	deliveryService := service.NewDeliveryService(engine)
+	delivery := mvc.New(app.Party("/v1/delivery"))
+	delivery.Register(
+		deliveryService,
+		sessManager.Start,
+	)
+	delivery.Handle(new(controller.DeliveryController))
+
 	//客户功能模块
 	customerService := service.NewCustomerService(engine)
 	customer := mvc.New(app.Party("/v1/customer"))
