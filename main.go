@@ -106,6 +106,24 @@ func mvcHandle(app *iris.Application) {
 	)
 	delivery.Handle(new(controller.DeliveryController))
 
+	//检收功能模块
+	acceptanceService := service.NewAcceptanceService(engine)
+	acceptance := mvc.New(app.Party("/v1/acceptance"))
+	acceptance.Register(
+		acceptanceService,
+		sessManager.Start,
+	)
+	acceptance.Handle(new(controller.AcceptanceController))
+
+	//请求功能模块
+	invoiceService := service.NewInvoiceService(engine)
+	invoice := mvc.New(app.Party("/v1/invoice"))
+	invoice.Register(
+		invoiceService,
+		sessManager.Start,
+	)
+	invoice.Handle(new(controller.InvoiceController))
+
 	//客户功能模块
 	customerService := service.NewCustomerService(engine)
 	customer := mvc.New(app.Party("/v1/customer"))
