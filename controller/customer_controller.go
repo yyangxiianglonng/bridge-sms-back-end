@@ -7,6 +7,7 @@ import (
 	"main/model"
 	"main/service"
 	"main/utils"
+	"time"
 )
 
 type CustomerController struct {
@@ -29,6 +30,20 @@ func (cu *CustomerController) BeforeActivation(ba mvc.BeforeActivation) {
 func (cu *CustomerController) Get() mvc.Result {
 	const COMMENT = "method:Get url:/v1/customer Controller:CustomerController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := cu.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	customerList := cu.CustomerService.GetCustomers()
 	if len(customerList) == 0 {
 		iris.New().Logger().Error(COMMENT + "ERR")
@@ -67,6 +82,19 @@ func (cu *CustomerController) Get() mvc.Result {
 func (cu *CustomerController) GetOneByCustomerCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/customer/{customer_code} Controller:CustomerController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := cu.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	customerCode := cu.Context.Params().Get("customer_code")
 	customer := cu.CustomerService.GetCustomer(customerCode)
@@ -129,8 +157,21 @@ func (cu *CustomerController) Post() mvc.Result {
 	const COMMENT = "method:Post /v1/customer Controller:CustomerController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := cu.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var customerEntity AddCustomerEntity
-	err := cu.Context.ReadJSON(&customerEntity)
+	err = cu.Context.ReadJSON(&customerEntity)
 
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
@@ -191,8 +232,21 @@ func (cu *CustomerController) Put() mvc.Result {
 	const COMMENT = "method:Put /v1/customer Controller:CustomerController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := cu.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var customerEntity AddCustomerEntity
-	err := cu.Context.ReadJSON(&customerEntity)
+	err = cu.Context.ReadJSON(&customerEntity)
 
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())

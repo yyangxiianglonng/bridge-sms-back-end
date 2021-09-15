@@ -38,6 +38,19 @@ func (es *EstimateController) GetAllByProjectCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/estimate/all/{project_code} Controller:EstimateController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := es.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	projectCode := es.Context.Params().Get("project_code")
 	estimate := es.EstimateService.GetEstimates(projectCode)
 
@@ -78,6 +91,19 @@ func (es *EstimateController) GetAllByProjectCode() mvc.Result {
 func (es *EstimateController) GetOneByEstimateCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/estimate/one/{estimate_code} Controller:EstimateController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := es.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	estimateCode := es.Context.Params().Get("estimate_code")
 	estimate := es.EstimateService.GetEstimate(estimateCode)
@@ -157,8 +183,21 @@ func (es *EstimateController) Post() mvc.Result {
 	const COMMENT = "method:Post url:/v1/estimate Controller:EstimateController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := es.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var estimateEntity AddEstimateEntity
-	err := es.Context.ReadJSON(&estimateEntity)
+	err = es.Context.ReadJSON(&estimateEntity)
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
 		return mvc.Response{
@@ -234,8 +273,21 @@ func (es *EstimateController) Put() mvc.Result {
 	const COMMENT = "method:Put url:/v1/estimate Controller:EstimateController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := es.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var estimateEntity AddEstimateEntity
-	err := es.Context.ReadJSON(&estimateEntity)
+	err = es.Context.ReadJSON(&estimateEntity)
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
 		return mvc.Response{
@@ -311,6 +363,19 @@ func (es *EstimateController) GetAllByEstimateCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/estimate/detail Controller:EstimateController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := es.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	estimateCode := es.Context.Params().Get("estimate_code")
 	estimateDetail := es.EstimateService.GetEstimateDetails(estimateCode)
 
@@ -376,8 +441,21 @@ func (es *EstimateController) PostEstimateDetail() mvc.Result {
 	const COMMENT = "method:Post url:/v1/estimate/detail Controller:EstimateController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := es.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var estimateDetailEntity AddEstimateDetailEntity
-	err := es.Context.ReadJSON(&estimateDetailEntity)
+	err = es.Context.ReadJSON(&estimateDetailEntity)
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
 		return mvc.Response{
@@ -433,6 +511,19 @@ func (es *EstimateController) PostEstimateDetail() mvc.Result {
 func (es *EstimateController) DeleteDetail() mvc.Result {
 	const COMMENT = "method:Delete url:/v1/estimate/detail/{estimate_details_code} Controller:EstimateController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := es.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	estimate_details_code := es.Context.Params().Get("estimate_details_code")
 	isSuccess := es.EstimateService.DeleteEstimateDetail(estimate_details_code)

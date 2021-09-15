@@ -2,9 +2,9 @@ package utils
 
 //请求状态码
 const (
-	RECODE_OK   = 1 //请求成功 正常
-	RECODE_FAIL = 0 //失败
-	//RECODE_UNLOGIN = -1 //未登录 没有权限
+	RECODE_OK      = 1  //请求成功 正常
+	RECODE_FAIL    = 0  //失败
+	RECODE_UNLOGIN = -1 //未登录 没有权限
 )
 
 //业务逻辑状态码
@@ -13,10 +13,10 @@ const (
 	RESPMSG_FAIL = "0"
 
 	//管理员
-	RESPMSG_SUCCESSLOGIN    = "SUCCESS_LOGIN"
-	RESPMSG_FAILURELOGIN    = "FAILURE_LOGIN"
-	RESPMSG_SUCCESSSESSION  = "SUCCESS_SESSION"
-	RESPMSG_ERRORSESSION    = "ERROR_SESSION"
+	RESPMSG_SUCCESSLOGIN   = "SUCCESS_LOGIN"
+	RESPMSG_FAILURELOGIN   = "FAILURE_LOGIN"
+	RESPMSG_SUCCESSSESSION = "SUCCESS_SESSION"
+	//RESPMSG_ERRORSESSION    = "ERROR_SESSION"
 	RESPMSG_SIGNOUT         = "SUCCESS_SIGNOUT"
 	RESPMSG_HASNOACCESS     = "HAS_NO_ACCESS"
 	RESPMSG_ERRORADMINCOUNT = "ERROR_ADMINCOUNT"
@@ -158,6 +158,7 @@ const (
 	RESPMSG_ERROR_USER         = "ERROR_USER"
 	RESPMSG_SUCCESS_PASSWORD   = "SUCCESS_PASSWORD"
 	RESPMSG_ERROR_PASSWORD     = "ERROR_PASSWORD"
+	RESPMSG_ERROR_SESSION      = "ERROR_SESSION"
 
 	//文件操作
 	RESPMSG_ERROR_PICTUREADD  = "ERROR_PICTUREADD"
@@ -180,10 +181,10 @@ var recodeText = map[string]string{
 	EEROR_UNLOGIN: "未登陆无操作权限，请先登陆", //未登陆 没有权限
 
 	//管理员
-	RESPMSG_SUCCESSLOGIN:    "管理员登陆成功",
-	RESPMSG_FAILURELOGIN:    "管理员账号或密码错误，登陆失败",
-	RESPMSG_SUCCESSSESSION:  "获取管理员信息成功",
-	RESPMSG_ERRORSESSION:    "获取管理员信息失败",
+	RESPMSG_SUCCESSLOGIN:   "管理员登陆成功",
+	RESPMSG_FAILURELOGIN:   "管理员账号或密码错误，登陆失败",
+	RESPMSG_SUCCESSSESSION: "获取管理员信息成功",
+	//RESPMSG_ERRORSESSION:    "获取管理员信息失败",
 	RESPMSG_HASNOACCESS:     "亲，您的权限不足",
 	RESPMSG_SIGNOUT:         "退出成功",
 	RESPMSG_ERRORADMINCOUNT: "获取管理员总数失败",
@@ -325,6 +326,7 @@ var recodeText = map[string]string{
 	RESPMSG_ERROR_USER:         "User ID存在しません",
 	RESPMSG_SUCCESS_PASSWORD:   "Password認証できました",
 	RESPMSG_ERROR_PASSWORD:     "Passwordが間違っています",
+	RESPMSG_ERROR_SESSION:      "ログインセッションが切れました",
 
 	//图片操作
 	RESPMSG_ERROR_PICTUREADD:  "图片上传失败",

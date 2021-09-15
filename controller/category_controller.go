@@ -8,6 +8,7 @@ import (
 	"main/service"
 	"main/utils"
 	"strconv"
+	"time"
 )
 
 type CategoryController struct {
@@ -33,6 +34,19 @@ func (ca *CategoryController) BeforeActivation(ba mvc.BeforeActivation) {
 func (ca *CategoryController) Get() mvc.Result {
 	const COMMENT = "method:Get url:/v1/category Controller:CategoryController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := ca.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	categoryList := ca.CategoryService.GetCategories()
 	iris.New().Logger().Info(categoryList)
@@ -73,8 +87,21 @@ func (ca *CategoryController) Get() mvc.Result {
 func (ca *CategoryController) GetParent() mvc.Result {
 	const COMMENT = "method:Get url:/v1/category/Parent Controller:CategoryController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
-	parentCategoryList := ca.CategoryService.GetParentCategories()
 
+	token := ca.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
+	parentCategoryList := ca.CategoryService.GetParentCategories()
 	if len(parentCategoryList) == 0 {
 		iris.New().Logger().Error(COMMENT + "ERR")
 		return mvc.Response{
@@ -111,6 +138,19 @@ func (ca *CategoryController) GetParent() mvc.Result {
 func (ca *CategoryController) GetOneById() mvc.Result {
 	const COMMENT = "method:Get url:/v1/category/{id} Controller:CategoryController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := ca.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	//把商品分类ID从string类型变换为int64类型
 	categoryId, _ := strconv.ParseInt(ca.Context.Params().Get("id"), 10, 64)
@@ -167,8 +207,21 @@ func (ca *CategoryController) Post() mvc.Result {
 	const COMMENT = "method:Post /v1/category Controller:CategoryController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := ca.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var categoryEntity AddCategoryEntity
-	err := ca.Context.ReadJSON(&categoryEntity)
+	err = ca.Context.ReadJSON(&categoryEntity)
 
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
@@ -222,8 +275,21 @@ func (ca *CategoryController) Put() mvc.Result {
 	const COMMENT = "method:Put url:/v1/category Controller:CategoryController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := ca.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var categoryEntity AddCategoryEntity
-	err := ca.Context.ReadJSON(&categoryEntity)
+	err = ca.Context.ReadJSON(&categoryEntity)
 
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
@@ -276,6 +342,19 @@ func (ca *CategoryController) Put() mvc.Result {
 func (ca *CategoryController) DeleteCategory() mvc.Result {
 	const COMMENT = "method:Delete url:/v1/category/{id} Controller:EstimateController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := ca.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	categoryId, _ := strconv.ParseInt(ca.Context.Params().Get("id"), 10, 64)
 	isSuccess := ca.CategoryService.DeleteCategory(categoryId)

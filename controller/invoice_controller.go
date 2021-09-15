@@ -7,6 +7,7 @@ import (
 	"main/model"
 	"main/service"
 	"main/utils"
+	"time"
 )
 
 func (in *InvoiceController) BeforeActivation(ba mvc.BeforeActivation) {
@@ -30,6 +31,19 @@ type InvoiceController struct {
 func (in *InvoiceController) GetAllByProjectCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/invoice/all/{project_code} Controller:InvoiceController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := in.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	projectCode := in.Context.Params().Get("project_code")
 	invoice := in.InvoiceService.GetInvoices(projectCode)
@@ -71,6 +85,19 @@ func (in *InvoiceController) GetAllByProjectCode() mvc.Result {
 func (in *InvoiceController) GetOneByInvoiceCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/invoice/one/{invoice_code} Controller:InvoiceController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := in.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	acceptanceCode := in.Context.Params().Get("invoice_code")
 	invoice := in.InvoiceService.GetInvoice(acceptanceCode)
@@ -136,8 +163,21 @@ func (in *InvoiceController) Post() mvc.Result {
 	const COMMENT = "method:Post url:/v1/invoice Controller:InvoiceController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := in.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var invoiceEntity AddInvoiceEntity
-	err := in.Context.ReadJSON(&invoiceEntity)
+	err = in.Context.ReadJSON(&invoiceEntity)
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
 		return mvc.Response{
@@ -199,8 +239,21 @@ func (in *InvoiceController) Put() mvc.Result {
 	const COMMENT = "method:Put url:/v1/invoice Controller:InvoiceController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := in.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var invoiceEntity AddInvoiceEntity
-	err := in.Context.ReadJSON(&invoiceEntity)
+	err = in.Context.ReadJSON(&invoiceEntity)
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
 		return mvc.Response{

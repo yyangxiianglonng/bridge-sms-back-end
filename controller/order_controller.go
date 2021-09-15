@@ -7,6 +7,7 @@ import (
 	"main/model"
 	"main/service"
 	"main/utils"
+	"time"
 )
 
 func (or *OrderController) BeforeActivation(ba mvc.BeforeActivation) {
@@ -30,6 +31,19 @@ type OrderController struct {
 func (or *OrderController) GetAllByProjectCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/order/all/{project_code} Controller:OrderController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := or.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	projectCode := or.Context.Params().Get("project_code")
 	order := or.OrderService.GetOrders(projectCode)
@@ -71,6 +85,19 @@ func (or *OrderController) GetAllByProjectCode() mvc.Result {
 func (or *OrderController) GetOneByOrderCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/order/one/{order_code} Controller:OrderController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := or.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	orderCode := or.Context.Params().Get("order_code")
 	order := or.OrderService.GetOrder(orderCode)
@@ -139,8 +166,21 @@ func (or *OrderController) Post() mvc.Result {
 	const COMMENT = "method:Post url:/v1/order Controller:OrderController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := or.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var orderEntity AddOrderEntity
-	err := or.Context.ReadJSON(&orderEntity)
+	err = or.Context.ReadJSON(&orderEntity)
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
 		return mvc.Response{
@@ -205,8 +245,21 @@ func (or *OrderController) Put() mvc.Result {
 	const COMMENT = "method:Put url:/v1/order Controller:OrderController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := or.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var orderEntity AddOrderEntity
-	err := or.Context.ReadJSON(&orderEntity)
+	err = or.Context.ReadJSON(&orderEntity)
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
 		return mvc.Response{

@@ -8,6 +8,7 @@ import (
 	"main/service"
 	"main/utils"
 	"strconv"
+	"time"
 )
 
 type ProductController struct {
@@ -33,6 +34,20 @@ func (pd *ProductController) BeforeActivation(ba mvc.BeforeActivation) {
 func (pd *ProductController) Get() mvc.Result {
 	const COMMENT = "method:Get url:/v1/product Controller:CustomerController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := pd.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	productList := pd.ProductService.GetProducts()
 	if len(productList) == 0 {
 		iris.New().Logger().Error(COMMENT + "ERR")
@@ -71,6 +86,20 @@ func (pd *ProductController) Get() mvc.Result {
 func (pd *ProductController) GetOneByProductId() mvc.Result {
 	const COMMENT = "method:Get url:/v1/customer/{customer_code} Controller:ProductController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := pd.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	productId, _ := strconv.ParseInt(pd.Context.Params().Get("id"), 10, 64)
 	product := pd.ProductService.GetProduct(productId)
 
@@ -126,8 +155,21 @@ func (pd *ProductController) Post() mvc.Result {
 	const COMMENT = "method:Post url:/v1/product Controller:ProductController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := pd.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var productEntity AddProductEntity
-	err := pd.Context.ReadJSON(&productEntity)
+	err = pd.Context.ReadJSON(&productEntity)
 
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
@@ -181,8 +223,21 @@ func (pd *ProductController) Put() mvc.Result {
 	const COMMENT = "method:Put url:/v1/product Controller:ProductController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := pd.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var productEntity AddProductEntity
-	err := pd.Context.ReadJSON(&productEntity)
+	err = pd.Context.ReadJSON(&productEntity)
 
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
@@ -236,6 +291,19 @@ func (pd *ProductController) Put() mvc.Result {
 func (pd *ProductController) DeleteProduct() mvc.Result {
 	const COMMENT = "method:Delete url:/v1/category/{id} Controller:EstimateController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := pd.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	productId, _ := strconv.ParseInt(pd.Context.Params().Get("id"), 10, 64)
 	isSuccess := pd.ProductService.DeleteProduct(productId)

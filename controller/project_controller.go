@@ -7,6 +7,7 @@ import (
 	"main/model"
 	"main/service"
 	"main/utils"
+	"time"
 )
 
 type ProjectController struct {
@@ -16,9 +17,13 @@ type ProjectController struct {
 }
 
 func (pr *ProjectController) BeforeActivation(ba mvc.BeforeActivation) {
-
 	//通过project_code获取对应的案件
-	ba.Handle("GET", "/one/{project_code}", "GetOneByProjectCode")
+	ba.Handle("GET", "/one/{project_code}", "GetOneByProjectCode", Middleware)
+}
+
+func Middleware(ctx iris.Context) {
+	iris.New().Logger().Info(ctx)
+	iris.New().Logger().Info("#################")
 }
 
 /**
@@ -29,14 +34,27 @@ func (pr *ProjectController) BeforeActivation(ba mvc.BeforeActivation) {
 func (pr *ProjectController) Get() mvc.Result {
 	const COMMENT = "method:Get url:/v1/project Controller:ProjectController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+	token := pr.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	projectList := pr.ProjectService.GetProjects()
 	if len(projectList) == 0 {
 		iris.New().Logger().Info(COMMENT + "ERR")
 		return mvc.Response{
 			Object: map[string]interface{}{
 				"status":  utils.RECODE_FAIL,
-				"type":    utils.RESPMSG_ERROR_USERLIST,
-				"message": utils.Recode2Text(utils.RESPMSG_ERROR_USERLIST),
+				"type":    utils.RESPMSG_ERROR_PROJECTGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_PROJECTGET),
 			},
 		}
 	}
@@ -67,6 +85,18 @@ func (pr *ProjectController) Get() mvc.Result {
 func (pr *ProjectController) GetOneByProjectCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/project/one/{project_code} Controller:ProjectController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+	token := pr.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	projectCode := pr.Context.Params().Get("project_code")
 	project := pr.ProjectService.GetProject(projectCode)
@@ -122,9 +152,21 @@ type AddProjectEntity struct {
 func (pr *ProjectController) Post() mvc.Result {
 	const COMMENT = "method:Post url:/v1/project Controller:ProjectController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+	token := pr.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	var projectEntity AddProjectEntity
-	err := pr.Context.ReadJSON(&projectEntity)
+	err = pr.Context.ReadJSON(&projectEntity)
 
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
@@ -178,8 +220,21 @@ func (pr *ProjectController) Put() mvc.Result {
 	const COMMENT = "method:Put url:/v1/project Controller:ProjectController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := pr.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var projectEntity AddProjectEntity
-	err := pr.Context.ReadJSON(&projectEntity)
+	err = pr.Context.ReadJSON(&projectEntity)
 
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())

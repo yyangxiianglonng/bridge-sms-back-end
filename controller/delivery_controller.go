@@ -7,6 +7,7 @@ import (
 	"main/model"
 	"main/service"
 	"main/utils"
+	"time"
 )
 
 func (de *DeliveryController) BeforeActivation(ba mvc.BeforeActivation) {
@@ -30,6 +31,19 @@ type DeliveryController struct {
 func (de *DeliveryController) GerAllByProjectCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/delivery/all/{project_code} Controller:DeliveryController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := de.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	projectCode := de.Context.Params().Get("project_code")
 	delivery := de.DeliveryService.GetDeliveries(projectCode)
@@ -71,6 +85,19 @@ func (de *DeliveryController) GerAllByProjectCode() mvc.Result {
 func (de *DeliveryController) GetOneByDeliveryCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/delivery/one/{delivery_code} Controller:DeliveryController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := de.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	deliveryCode := de.Context.Params().Get("delivery_code")
 	delivery := de.DeliveryService.GetDelivery(deliveryCode)
@@ -138,8 +165,21 @@ func (de *DeliveryController) Post() mvc.Result {
 	const COMMENT = "method:Post url:/v1/delivery Controller:DeliveryController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := de.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var deliveryEntity AddDeliveryEntity
-	err := de.Context.ReadJSON(&deliveryEntity)
+	err = de.Context.ReadJSON(&deliveryEntity)
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
 		return mvc.Response{
@@ -203,8 +243,21 @@ func (de *DeliveryController) Put() mvc.Result {
 	const COMMENT = "method:PUT url:/v1/delivery Controller:DeliveryController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
+	token := de.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
 	var deliveryEntity AddDeliveryEntity
-	err := de.Context.ReadJSON(&deliveryEntity)
+	err = de.Context.ReadJSON(&deliveryEntity)
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
 		return mvc.Response{

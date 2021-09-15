@@ -75,7 +75,7 @@ func (uc *UserController) Post() mvc.Result {
 		}
 	}
 
-	token, err := utils.GenerateToken(userEntity.UserName, userEntity.PassWord)
+	token, err := utils.GenerateToken(userEntity.UserName, utils.HashAndSalt([]byte(userEntity.PassWord)))
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
 		return mvc.Response{
@@ -89,7 +89,7 @@ func (uc *UserController) Post() mvc.Result {
 
 	//管理员存在 设置session
 	//userByte := admin.Encoder()
-	uc.Session.Set(token, token)
+	//uc.Session.Set(token, token)
 
 	iris.New().Logger().Info(COMMENT + "end")
 	return mvc.Response{
@@ -97,7 +97,7 @@ func (uc *UserController) Post() mvc.Result {
 			"status":    utils.RECODE_OK,
 			"type":      utils.RESPMSG_SUCCESS_USERLOGIN,
 			"message":   utils.Recode2Text(utils.RESPMSG_SUCCESS_USERLOGIN),
-			//"token":     token,
+			"token":     token,
 			"full_name": user.FullName,
 		},
 	}

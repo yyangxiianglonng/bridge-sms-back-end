@@ -22,7 +22,6 @@ type EmailParam struct {
 	Message *gomail.Message
 }
 
-
 func InitEmail(ep *EmailParam) {
 	toers := []string{}
 
@@ -55,7 +54,7 @@ func InitEmail(ep *EmailParam) {
 	ep.Message.SetHeader("Subject", "From Bridge System")
 
 	// 正文
-	ep.Message.SetBody("text/html", "This is email body.")
+	ep.Message.SetBody("text/html", "<input type=\"button\" value=\"激活\">")
 
 	dialer := gomail.NewPlainDialer(ep.ServerHost, ep.ServerPort, ep.FromEmail, ep.FromPasswd)
 	// 发送
