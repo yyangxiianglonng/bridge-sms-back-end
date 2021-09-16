@@ -15,9 +15,9 @@ type Estimate struct {
 	CustomerName      string    `json:"customer_name"`
 	EstimateStartDate time.Time `json:"estimate_start_date"`
 	EstimateEndDate   time.Time `json:"estimate_end_date"`
-	Work1             string    `json:"work_1"`
-	Work2             string    `json:"work_2"`
-	Work3             string    `json:"work_3"`
+	Work1             string    `json:"work1"`
+	Work2             string    `json:"work2"`
+	Work3             string    `json:"work3"`
 	Deliverables1     string    `json:"deliverables1"`
 	Deliverables2     string    `json:"deliverables2"`
 	Deliverables3     string    `json:"deliverables3"`

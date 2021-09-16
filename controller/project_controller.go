@@ -18,12 +18,7 @@ type ProjectController struct {
 
 func (pr *ProjectController) BeforeActivation(ba mvc.BeforeActivation) {
 	//通过project_code获取对应的案件
-	ba.Handle("GET", "/one/{project_code}", "GetOneByProjectCode", Middleware)
-}
-
-func Middleware(ctx iris.Context) {
-	iris.New().Logger().Info(ctx)
-	iris.New().Logger().Info("#################")
+	ba.Handle("GET", "/one/{project_code}", "GetOneByProjectCode")
 }
 
 /**

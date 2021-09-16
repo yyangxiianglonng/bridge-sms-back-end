@@ -148,21 +148,21 @@ type AddEstimateEntity struct {
 	CustomerName      string    `json:"customer_name"`
 	EstimateStartDate time.Time `json:"estimate_start_date"`
 	EstimateEndDate   time.Time `json:"estimate_end_date"`
-	Work1             string    `json:"work_1"`
-	Work2             string    `json:"work_2"`
-	Work3             string    `json:"work_3"`
-	Deliverables1     string    `json:"deliverables_1"`
-	Deliverables2     string    `json:"deliverables_2"`
-	Deliverables3     string    `json:"deliverables_3"`
-	Media1            string    `json:"media_1"`
-	Media2            string    `json:"media_2"`
-	Media3            string    `json:"media_3"`
-	Quantity1         string    `json:"quantity_1"`
-	Quantity2         string    `json:"quantity_2"`
-	Quantity3         string    `json:"quantity_3"`
-	DeliveryDate1     string    `json:"delivery_date_1"`
-	DeliveryDate2     string    `json:"delivery_date_2"`
-	DeliveryDate3     string    `json:"delivery_date_3"`
+	Work1             string    `json:"work1"`
+	Work2             string    `json:"work2"`
+	Work3             string    `json:"work3"`
+	Deliverables1     string    `json:"deliverables1"`
+	Deliverables2     string    `json:"deliverables2"`
+	Deliverables3     string    `json:"deliverables3"`
+	Media1            string    `json:"media1"`
+	Media2            string    `json:"media2"`
+	Media3            string    `json:"media3"`
+	Quantity1         string    `json:"quantity1"`
+	Quantity2         string    `json:"quantity2"`
+	Quantity3         string    `json:"quantity3"`
+	DeliveryDate1     string    `json:"delivery_date1"`
+	DeliveryDate2     string    `json:"delivery_date2"`
+	DeliveryDate3     string    `json:"delivery_date3"`
 	WorkSpace         string    `json:"work_space"`
 	SubTotal          string    `json:"sub_total"`
 	Tax               string    `json:"tax"`
