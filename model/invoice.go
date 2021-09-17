@@ -6,6 +6,7 @@ type Invoice struct {
 	Id           int64     `xorm:"pk unique autoincr"json:"id"`
 	InvoiceCode  string    `json:"invoice_code"`
 	DeliveryCode string    `json:"delivery_code"`
+	EstimateCode string    `json:"estimate_code"`
 	ProjectCode  string    `json:"project_code"`
 	ProjectName  string    `json:"project_name"`
 	CustomerName string    `json:"customer_name"`
@@ -35,6 +36,7 @@ func (invoice *Invoice) InvoiceToRespDesc() (respInfo interface{}) {
 		"id":            invoice.Id,
 		"invoice_code":  invoice.InvoiceCode,
 		"delivery_code": invoice.DeliveryCode,
+		"estimate_code": invoice.EstimateCode,
 		"project_code":  invoice.ProjectCode,
 		"project_name":  invoice.ProjectName,
 		"customer_name": invoice.CustomerName,

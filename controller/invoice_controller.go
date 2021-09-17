@@ -138,6 +138,7 @@ type AddInvoiceEntity struct {
 	Id           int64  `json:"id"`
 	InvoiceCode  string `json:"invoice_code"`
 	DeliveryCode string `json:"delivery_code"`
+	EstimateCode string `json:"estimate_code"`
 	ProjectCode  string `json:"project_code"`
 	ProjectName  string `json:"project_name"`
 	CustomerName string `json:"customer_name"`
@@ -193,6 +194,7 @@ func (in *InvoiceController) Post() mvc.Result {
 
 	invoiceInfo.InvoiceCode = invoiceEntity.InvoiceCode
 	invoiceInfo.DeliveryCode = invoiceEntity.DeliveryCode
+	invoiceInfo.EstimateCode = invoiceEntity.EstimateCode
 	invoiceInfo.ProjectCode = invoiceEntity.ProjectCode
 	invoiceInfo.ProjectName = invoiceEntity.ProjectName
 	invoiceInfo.CustomerName = invoiceEntity.CustomerName
@@ -269,6 +271,7 @@ func (in *InvoiceController) Put() mvc.Result {
 
 	invoiceInfo.InvoiceCode = invoiceEntity.InvoiceCode
 	invoiceInfo.DeliveryCode = invoiceEntity.DeliveryCode
+	invoiceInfo.EstimateCode = invoiceEntity.EstimateCode
 	invoiceInfo.ProjectCode = invoiceEntity.ProjectCode
 	invoiceInfo.ProjectName = invoiceEntity.ProjectName
 	invoiceInfo.CustomerName = invoiceEntity.CustomerName

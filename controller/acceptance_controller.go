@@ -137,6 +137,7 @@ func (ac *AcceptanceController) GetOneByAcceptanceCode() mvc.Result {
 type AddAcceptanceEntity struct {
 	Id             int64  `json:"id"`
 	AcceptanceCode string `json:"acceptance_code"`
+	EstimateCode   string `json:"estimate_code"`
 	DeliveryCode   string `json:"delivery_code"`
 	ProjectCode    string `json:"project_code"`
 	ProjectName    string `json:"project_name"`
@@ -194,6 +195,7 @@ func (ac *AcceptanceController) Post() mvc.Result {
 	var acceptanceInfo model.Acceptance
 
 	acceptanceInfo.AcceptanceCode = acceptanceEntity.AcceptanceCode
+	acceptanceInfo.EstimateCode = acceptanceEntity.EstimateCode
 	acceptanceInfo.DeliveryCode = acceptanceEntity.DeliveryCode
 	acceptanceInfo.ProjectCode = acceptanceEntity.ProjectCode
 	acceptanceInfo.ProjectName = acceptanceEntity.ProjectName
@@ -273,6 +275,7 @@ func (ac *AcceptanceController) Put() mvc.Result {
 
 	acceptanceInfo.Id = acceptanceEntity.Id
 	acceptanceInfo.AcceptanceCode = acceptanceEntity.AcceptanceCode
+	acceptanceInfo.EstimateCode = acceptanceEntity.EstimateCode
 	acceptanceInfo.DeliveryCode = acceptanceEntity.DeliveryCode
 	acceptanceInfo.ProjectCode = acceptanceEntity.ProjectCode
 	acceptanceInfo.ProjectName = acceptanceEntity.ProjectName

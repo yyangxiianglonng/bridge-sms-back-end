@@ -27,6 +27,9 @@ func (es *EstimateController) BeforeActivation(ba mvc.BeforeActivation) {
 	ba.Handle("POST", "/detail", "PostEstimateDetail")
 	//删除见积详细
 	ba.Handle("DELETE", "/detail/{estimate_details_code}", "DeleteDetail")
+
+	ba.Handle("GET", "/pdf/{estimate_code}", "DrawPdfByEstimateCode")
+
 }
 
 /**
@@ -124,8 +127,8 @@ func (es *EstimateController) GetOneByEstimateCode() mvc.Result {
 	for _, item := range estimate {
 		respList = append(respList, item.EstimateToRespDesc())
 	}
-	iris.New().Logger().Info(respList)
-	//返回见积列表
+
+	//返回见积
 	iris.New().Logger().Info(COMMENT + "End")
 	return mvc.Response{
 		Object: map[string]interface{}{
@@ -545,6 +548,60 @@ func (es *EstimateController) DeleteDetail() mvc.Result {
 			"status":  utils.RECODE_OK,
 			"type":    utils.RESPMSG_SUCCESS_ESTIMATEDETAILDELETE,
 			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEDETAILDELETE),
+		},
+	}
+}
+
+/**
+ * url: /v1/estimate/pdf/{estimate_code}
+ * type：GET
+ * descs：获取所有见积功能
+ */
+func (es *EstimateController) DrawPdfByEstimateCode() mvc.Result {
+	const COMMENT = "method:Get url:/v1/estimate/pdf/{estimate_code} Controller:EstimateController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := es.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
+	estimateCode := es.Context.Params().Get("estimate_code")
+	estimate := es.EstimateService.GetEstimate(estimateCode)
+
+	if estimate == nil {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ESTIMATEGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEGET),
+			},
+		}
+	}
+
+	//将查询到的见积数据进行转换成前端需要的内容
+	var respList []interface{}
+	for _, item := range estimate {
+		respList = append(respList, item.EstimateToRespDesc())
+	}
+
+	utils.NewPdf()
+	//返回pdf文件
+	iris.New().Logger().Info(COMMENT + "End")
+	return mvc.Response{
+		Object: map[string]interface{}{
+			"status":  utils.RECODE_OK,
+			"type":    utils.RESPMSG_SUCCESS_ESTIMATEGET,
+			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEGET),
 		},
 	}
 }

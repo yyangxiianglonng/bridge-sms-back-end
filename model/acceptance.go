@@ -8,6 +8,7 @@ import "time"
 type Acceptance struct {
 	Id             int64     `xorm:"pk unique autoincr"json:"id"`
 	AcceptanceCode string    `json:"acceptance_code"`
+	EstimateCode   string    `json:"estimate_code"`
 	DeliveryCode   string    `json:"delivery_code"`
 	ProjectCode    string    `json:"project_code"`
 	ProjectName    string    `json:"project_name"`
@@ -39,6 +40,7 @@ func (acceptance *Acceptance) AcceptanceToRespDesc() (respInfo interface{}) {
 	respInfo = map[string]interface{}{
 		"id":              acceptance.Id,
 		"acceptance_code": acceptance.AcceptanceCode,
+		"estimate_code":   acceptance.EstimateCode,
 		"delivery_code":   acceptance.DeliveryCode,
 		"project_code":    acceptance.ProjectCode,
 		"project_name":    acceptance.ProjectName,
