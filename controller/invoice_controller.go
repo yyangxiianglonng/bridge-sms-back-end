@@ -152,6 +152,7 @@ type AddInvoiceEntity struct {
 	Remarks      string `json:"remarks"`
 	Note         string `json:"note"`
 	CreatedBy    string `json:"created_by"`
+	ModifiedBy   string `json:"modified_by"`
 	IsDelete     int64  `json:"is_delete"`
 }
 
@@ -284,7 +285,7 @@ func (in *InvoiceController) Put() mvc.Result {
 	invoiceInfo.BankUser = invoiceEntity.BankUser
 	invoiceInfo.Remarks = invoiceEntity.Remarks
 	invoiceInfo.Note = invoiceEntity.Note
-	invoiceInfo.CreatedBy = invoiceEntity.CreatedBy
+	invoiceInfo.ModifiedBy = invoiceEntity.ModifiedBy
 	invoiceInfo.IsDelete = invoiceEntity.IsDelete
 
 	isSuccess := in.InvoiceService.UpdateInvoice(invoiceEntity.InvoiceCode, invoiceInfo)

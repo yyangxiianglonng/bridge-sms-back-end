@@ -13,7 +13,7 @@ func NewPdf() {
 	pdf := gopdf.GoPdf{}
 	pdf.Start(gopdf.Config{PageSize: gopdf.Rect{W: 850.32, H: 1203.12}}) //595.28, 841.89 = A4
 	pdf.AddPage()
-
+	pdf.SetFillColor(0, 0, 0)
 	Title(&pdf)
 	Customer(&pdf)
 	drawGrid(&pdf)
@@ -175,6 +175,11 @@ func BodyTitle(pdf *gopdf.GoPdf) {
 }
 
 func Deliverables(pdf *gopdf.GoPdf) {
+	lineX1 := 163.0
+	lineY1 := 565.0
+	lineW := 622.0
+	lineH := 12.0
+
 	err := pdf.AddTTFFont("ipaexm", FONTPATH+"ipaexm.ttf")
 	if err != nil {
 		panic(err)
@@ -184,13 +189,12 @@ func Deliverables(pdf *gopdf.GoPdf) {
 	pdf.SetY(555)
 	pdf.Cell(nil, "成果物及び納品予定日は、以下の通りです。")
 
-	lineX1 := 163.0
-	lineY1 := 565.0
-	lineW := 622.0
-	lineH := 12.0
+	//追加背景颜色
+	pdf.SetFillColor(255, 255, 153)
+	pdf.RectFromUpperLeftWithStyle(lineX1, lineY1, lineW, lineH, "FD")
+	pdf.SetFillColor(255, 255, 153)
 
 	pdf.SetLineWidth(0.7)
-
 	pdf.Line(lineX1, lineY1, lineX1, lineY1+lineH*4)             //左
 	pdf.Line(470, lineY1, 470, lineY1+lineH*4)                   //左2
 	pdf.Line(590, lineY1, 590, lineY1+lineH*4)                   //左3
@@ -201,6 +205,7 @@ func Deliverables(pdf *gopdf.GoPdf) {
 		pdf.Line(lineX1, lineY1+lineH*num, lineX1+lineW, lineY1+lineH*num)
 	}
 
+	pdf.SetTextColor(0, 0, 0)
 	pdf.SetX(280)
 	pdf.SetY(566)
 	pdf.Cell(nil, "成　果　物")

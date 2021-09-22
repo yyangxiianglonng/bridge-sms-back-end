@@ -4,7 +4,7 @@
   "port": "8050",
   "data_base": {
     "drive": "mysql",
-    "host": "192.168.3.39",
+    "host": "192.168.3.9",
     "port": "3306",
     "user": "iris",
     "pwd": "iris",

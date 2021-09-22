@@ -176,6 +176,8 @@ type AddEstimateEntity struct {
 	Remarks           string    `json:"remarks"`
 	PaymentConditions string    `json:"payment_conditions"`
 	Other             string    `json:"other"`
+	CreatedBy         string    `json:"created_by"`
+	ModifiedBy        string    `json:"modified_by"`
 	IsDelete          int64     `json:"is_delete"`
 }
 
@@ -245,6 +247,7 @@ func (es *EstimateController) Post() mvc.Result {
 	estimateInfo.Remarks = estimateEntity.Remarks
 	estimateInfo.PaymentConditions = estimateEntity.PaymentConditions
 	estimateInfo.Other = estimateEntity.Other
+	estimateInfo.CreatedBy = estimateEntity.CreatedBy
 	estimateInfo.IsDelete = estimateEntity.IsDelete
 
 	isSuccess := es.EstimateService.SaveEstimate(estimateInfo)
@@ -335,6 +338,7 @@ func (es *EstimateController) Put() mvc.Result {
 	estimateInfo.Remarks = estimateEntity.Remarks
 	estimateInfo.PaymentConditions = estimateEntity.PaymentConditions
 	estimateInfo.Other = estimateEntity.Other
+	estimateInfo.ModifiedBy = estimateEntity.ModifiedBy
 	estimateInfo.IsDelete = estimateEntity.IsDelete
 
 	isSuccess := es.EstimateService.UpdateEstimate(estimateInfo.EstimateCode, estimateInfo)
@@ -484,6 +488,7 @@ func (es *EstimateController) PostEstimateDetail() mvc.Result {
 	estimateDetailInfo.Tax = estimateDetailEntity.Tax
 	estimateDetailInfo.Total = estimateDetailEntity.Total
 	estimateDetailInfo.MainFlag = estimateDetailEntity.MainFlag
+	estimateDetailInfo.CreatedBy = estimateDetailEntity.CreatedBy
 	estimateDetailInfo.IsDelete = estimateDetailEntity.IsDelete
 
 	isSuccess := es.EstimateService.SaveEstimateDetail(estimateDetailInfo)
@@ -555,6 +560,7 @@ func (es *EstimateController) PutEstimateDetail() mvc.Result {
 	estimateDetailInfo.Tax = estimateDetailEntity.Tax
 	estimateDetailInfo.Total = estimateDetailEntity.Total
 	estimateDetailInfo.MainFlag = estimateDetailEntity.MainFlag
+	estimateDetailInfo.ModifiedBy = estimateDetailEntity.ModifiedBy
 	estimateDetailInfo.IsDelete = estimateDetailEntity.IsDelete
 
 	isSuccess := es.EstimateService.UpdateEstimateDetail(estimateDetailEntity.EstimateDetailsCode, estimateDetailInfo)
@@ -655,8 +661,37 @@ func (es *EstimateController) DeleteDetail() mvc.Result {
 		}
 	}
 
+	var estimateDetailEntity AddEstimateDetailEntity
+	err = es.Context.ReadJSON(&estimateDetailEntity)
+	if err != nil {
+		iris.New().Logger().Error(COMMENT + err.Error())
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ESTIMATEDETAILUPDATE,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEDETAILUPDATE),
+			},
+		}
+	}
+
+	var estimateDetailInfo model.EstimateDetail
+
+	estimateDetailInfo.EstimateDetailsCode = estimateDetailEntity.EstimateDetailsCode
+	estimateDetailInfo.EstimateCode = estimateDetailEntity.EstimateCode
+	estimateDetailInfo.ProductCode = estimateDetailEntity.ProductCode
+	estimateDetailInfo.ProductName = estimateDetailEntity.ProductName
+	estimateDetailInfo.Quantity = estimateDetailEntity.Quantity
+	estimateDetailInfo.Price = estimateDetailEntity.Price
+	estimateDetailInfo.SubTotal = estimateDetailEntity.SubTotal
+	estimateDetailInfo.Tax = estimateDetailEntity.Tax
+	estimateDetailInfo.Total = estimateDetailEntity.Total
+	estimateDetailInfo.MainFlag = estimateDetailEntity.MainFlag
+	estimateDetailInfo.ModifiedBy = estimateDetailEntity.ModifiedBy
+	estimateDetailInfo.DeletedBy = estimateDetailEntity.DeletedBy
+	estimateDetailInfo.IsDelete = estimateDetailEntity.IsDelete
+
 	estimate_details_code := es.Context.Params().Get("estimate_details_code")
-	isSuccess := es.EstimateService.DeleteEstimateDetail(estimate_details_code)
+	isSuccess := es.EstimateService.DeleteEstimateDetail(estimate_details_code, estimateDetailInfo)
 
 	if !isSuccess {
 		iris.New().Logger().Error(COMMENT + "ERR")

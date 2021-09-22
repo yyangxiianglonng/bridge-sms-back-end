@@ -20,7 +20,7 @@ type EstimateService interface {
 	GetEstimateDetails(estimate_code string) []*model.EstimateDetail
 	SaveEstimateDetail(estimate model.EstimateDetail) bool
 	UpdateEstimateDetail(estimateDetailsCode string, estimate model.EstimateDetail) bool
-	DeleteEstimateDetail(estimateDetailsCode string) bool
+	DeleteEstimateDetail(estimateDetailsCode string, estimateDetail model.EstimateDetail) bool
 }
 
 /**
@@ -112,8 +112,9 @@ func (es *estimateService) UpdateEstimateDetail(estimateDetailsCode string, esti
 /**
  * 删除见积详细服务
  */
-func (es *estimateService) DeleteEstimateDetail(estimateDetailsCode string) bool {
-	var estimateDetail model.EstimateDetail
-	_, err := es.Engine.Where("estimate_details_code = ?", estimateDetailsCode).Delete(&estimateDetail)
+func (es *estimateService) DeleteEstimateDetail(estimateDetailsCode string, estimateDetail model.EstimateDetail) bool {
+	//var estimateDetail model.EstimateDetail
+	_, err := es.Engine.Where("estimate_details_code = ?", estimateDetailsCode).Update(&estimateDetail)
+	_, err = es.Engine.Where("estimate_details_code = ?", estimateDetailsCode).Delete(&estimateDetail)
 	return err == nil
 }
