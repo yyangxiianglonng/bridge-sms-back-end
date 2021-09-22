@@ -25,6 +25,8 @@ func (es *EstimateController) BeforeActivation(ba mvc.BeforeActivation) {
 	ba.Handle("GET", "/detail/all/{estimate_code}", "GetAllByEstimateCode")
 	//保存见积详细
 	ba.Handle("POST", "/detail", "PostEstimateDetail")
+	//更新见积详细
+	ba.Handle("PUT", "/detail", "PutEstimateDetail")
 	//删除见积详细
 	ba.Handle("DELETE", "/detail/{estimate_details_code}", "DeleteDetail")
 
@@ -507,12 +509,12 @@ func (es *EstimateController) PostEstimateDetail() mvc.Result {
 }
 
 /**
- * url: /v1/estimate/detail/{estimate_details_code}
- * type：DELETE
- * descs：保存见积详细功能
+ * url: /v1/estimate/detail
+ * type：Put
+ * descs：更新见积详细功能
  */
-func (es *EstimateController) DeleteDetail() mvc.Result {
-	const COMMENT = "method:Delete url:/v1/estimate/detail/{estimate_details_code} Controller:EstimateController" + " "
+func (es *EstimateController) PutEstimateDetail() mvc.Result {
+	const COMMENT = "method:Put url:/v1/estimate/detail Controller:EstimateController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
 	token := es.Context.GetHeader("Authorization")
@@ -528,16 +530,41 @@ func (es *EstimateController) DeleteDetail() mvc.Result {
 		}
 	}
 
-	estimate_details_code := es.Context.Params().Get("estimate_details_code")
-	isSuccess := es.EstimateService.DeleteEstimateDetail(estimate_details_code)
+	var estimateDetailEntity AddEstimateDetailEntity
+	err = es.Context.ReadJSON(&estimateDetailEntity)
+	if err != nil {
+		iris.New().Logger().Error(COMMENT + err.Error())
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ESTIMATEDETAILUPDATE,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEDETAILUPDATE),
+			},
+		}
+	}
 
+	var estimateDetailInfo model.EstimateDetail
+
+	estimateDetailInfo.EstimateDetailsCode = estimateDetailEntity.EstimateDetailsCode
+	estimateDetailInfo.EstimateCode = estimateDetailEntity.EstimateCode
+	estimateDetailInfo.ProductCode = estimateDetailEntity.ProductCode
+	estimateDetailInfo.ProductName = estimateDetailEntity.ProductName
+	estimateDetailInfo.Quantity = estimateDetailEntity.Quantity
+	estimateDetailInfo.Price = estimateDetailEntity.Price
+	estimateDetailInfo.SubTotal = estimateDetailEntity.SubTotal
+	estimateDetailInfo.Tax = estimateDetailEntity.Tax
+	estimateDetailInfo.Total = estimateDetailEntity.Total
+	estimateDetailInfo.MainFlag = estimateDetailEntity.MainFlag
+	estimateDetailInfo.IsDelete = estimateDetailEntity.IsDelete
+
+	isSuccess := es.EstimateService.UpdateEstimateDetail(estimateDetailEntity.EstimateDetailsCode, estimateDetailInfo)
 	if !isSuccess {
 		iris.New().Logger().Error(COMMENT + "ERR")
 		return mvc.Response{
 			Object: map[string]interface{}{
 				"status":  utils.RECODE_FAIL,
-				"type":    utils.RESPMSG_ERROR_ESTIMATEDETAILDELETE,
-				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEDETAILDELETE),
+				"type":    utils.RESPMSG_ERROR_ESTIMATEDETAILUPDATE,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEDETAILUPDATE),
 			},
 		}
 	}
@@ -546,8 +573,8 @@ func (es *EstimateController) DeleteDetail() mvc.Result {
 	return mvc.Response{
 		Object: map[string]interface{}{
 			"status":  utils.RECODE_OK,
-			"type":    utils.RESPMSG_SUCCESS_ESTIMATEDETAILDELETE,
-			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEDETAILDELETE),
+			"type":    utils.RESPMSG_SUCCESS_ESTIMATEDETAILUPDATE,
+			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEDETAILUPDATE),
 		},
 	}
 }
@@ -602,6 +629,52 @@ func (es *EstimateController) DrawPdfByEstimateCode() mvc.Result {
 			"status":  utils.RECODE_OK,
 			"type":    utils.RESPMSG_SUCCESS_ESTIMATEGET,
 			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEGET),
+		},
+	}
+}
+
+/**
+ * url: /v1/estimate/detail/{estimate_details_code}
+ * type：DELETE
+ * descs：删除见积详细功能
+ */
+func (es *EstimateController) DeleteDetail() mvc.Result {
+	const COMMENT = "method:Delete url:/v1/estimate/detail/{estimate_details_code} Controller:EstimateController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := es.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
+	estimate_details_code := es.Context.Params().Get("estimate_details_code")
+	isSuccess := es.EstimateService.DeleteEstimateDetail(estimate_details_code)
+
+	if !isSuccess {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ESTIMATEDETAILDELETE,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEDETAILDELETE),
+			},
+		}
+	}
+
+	iris.New().Logger().Info(COMMENT + "End")
+	return mvc.Response{
+		Object: map[string]interface{}{
+			"status":  utils.RECODE_OK,
+			"type":    utils.RESPMSG_SUCCESS_ESTIMATEDETAILDELETE,
+			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEDETAILDELETE),
 		},
 	}
 }

@@ -19,6 +19,7 @@ type EstimateService interface {
 	//见积详细服务接口
 	GetEstimateDetails(estimate_code string) []*model.EstimateDetail
 	SaveEstimateDetail(estimate model.EstimateDetail) bool
+	UpdateEstimateDetail(estimateDetailsCode string, estimate model.EstimateDetail) bool
 	DeleteEstimateDetail(estimateDetailsCode string) bool
 }
 
@@ -63,7 +64,6 @@ func (es *estimateService) GetEstimate(estimateCode string) (estimate []*model.E
 	return
 }
 
-
 /**
  * 保存见积服务
  */
@@ -98,6 +98,14 @@ func (es *estimateService) GetEstimateDetails(estimateCode string) (estimateDeta
  */
 func (es *estimateService) SaveEstimateDetail(estimateDetail model.EstimateDetail) bool {
 	_, err := es.Engine.Insert(&estimateDetail)
+	return err == nil
+}
+
+/**
+ * 更新见积详细服务
+ */
+func (es *estimateService) UpdateEstimateDetail(estimateDetailsCode string, estimateDetail model.EstimateDetail) bool {
+	_, err := es.Engine.Where("estimate_details_code = ?", estimateDetailsCode).Update(&estimateDetail)
 	return err == nil
 }
 
