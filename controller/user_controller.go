@@ -9,6 +9,7 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"github.com/kataras/iris/v12/sessions"
+	"github.com/satori/go.uuid"
 )
 
 type UserController struct {
@@ -18,6 +19,11 @@ type UserController struct {
 	UserService service.UserService
 	//session对象
 	Session *sessions.Session
+}
+
+func (us *UserController) BeforeActivation(ba mvc.BeforeActivation) {
+	//通过project_code获取对应的案件
+	ba.Handle("PUT", "/signup/{active_code}", "PutSignup")
 }
 
 type UserEntity struct {
@@ -75,6 +81,19 @@ func (uc *UserController) Post() mvc.Result {
 		}
 	}
 
+	userName := uc.UserService.IsActiveByUserName(userEntity.UserName)
+
+	if userName[0].IsActive != true {
+		iris.New().Logger().Error(COMMENT + " ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ACTIVE,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ACTIVE),
+			},
+		}
+	}
+
 	token, err := utils.GenerateToken(userEntity.UserName, utils.HashAndSalt([]byte(userEntity.PassWord)))
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
@@ -107,13 +126,14 @@ func (uc *UserController) Post() mvc.Result {
 * 即将注册的用户实体
  */
 type AddUserEntity struct {
-	Id        int64  `json:"id"`
-	UserName  string `json:"user_name"`
-	FullName  string `json:"full_name"`
-	Email     string `json:"email"`
-	PassWord  string `json:"pass_word"`
-	CreatedBy string `json:"created_by"`
-	IsDelete  int64  `json:"is_delete"`
+	Id         int64  `json:"id"`
+	UserName   string `json:"user_name"`
+	FullName   string `json:"full_name"`
+	Email      string `json:"email"`
+	PassWord   string `json:"pass_word"`
+	CreatedBy  string `json:"created_by"`
+	ModifiedBy string `json:"modified_by"`
+	ActiveCode string `json:"active_code"`
 }
 
 /**
@@ -147,19 +167,34 @@ func (uc *UserController) PostSignup() mvc.Result {
 	userInfo.Email = userEntity.Email
 	userInfo.PassWord = utils.HashAndSalt([]byte(userEntity.PassWord))
 	userInfo.CreatedBy = userEntity.CreatedBy
-	userInfo.IsDelete = userEntity.IsDelete
+	userInfo.ActiveCode = uuid.NewV4().String()
 
 	//根据用户名到数据库中查询对应的管理信息
-	_, exist := uc.UserService.GetByUserName(userEntity.UserName)
+	_, existUserName := uc.UserService.GetByUserName(userEntity.UserName)
 
 	//用户名已经被使用
-	if exist {
+	if existUserName {
 		iris.New().Logger().Error(COMMENT + "用户名已经存在")
 		return mvc.Response{
 			Object: map[string]interface{}{
 				"status":  utils.RECODE_FAIL,
 				"type":    utils.RESPMSG_SUCCESS_USER,
 				"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_USER),
+			},
+		}
+	}
+
+	//根据邮箱地址到数据库中查询对应的管理信息
+	_, existEmail := uc.UserService.GetByEmail(userEntity.Email)
+
+	//邮箱已经被使用
+	if existEmail {
+		iris.New().Logger().Error(COMMENT + "邮箱已经被使用")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_SUCCESS_EMAIL,
+				"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_EMAIL),
 			},
 		}
 	}
@@ -181,11 +216,60 @@ func (uc *UserController) PostSignup() mvc.Result {
 		ServerPort: config.InitConfig().Email.ServerPort,
 		FromEmail:  config.InitConfig().Email.FromEmail,
 		FromPasswd: config.InitConfig().Email.FromPasswd,
-		Toers:      "yx.long945@gmail.com",
+		Toers:      userInfo.Email,
 		CCers:      "yangxianglong@bridge.vc",
+		ActiveCode: userInfo.ActiveCode,
 	}
 
 	utils.InitEmail(emailPara)
+
+	iris.New().Logger().Info(COMMENT + "End")
+	return mvc.Response{
+		Object: map[string]interface{}{
+			"status":  utils.RECODE_OK,
+			"type":    utils.RESPMSG_SUCCESS_USERADD,
+			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_USERADD),
+		},
+	}
+}
+
+/**
+ * 激活用户功能
+ * 接口：/v1/login/signup/{active_code}
+ * type：Put
+ */
+func (uc *UserController) PutSignup() mvc.Result {
+	const COMMENT = "method:Put url:/v1/login/signup/{active_code} Controller:UserController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+
+	var userEntity AddUserEntity
+	err := uc.Context.ReadJSON(&userEntity)
+
+	if err != nil {
+		iris.New().Logger().Error(COMMENT + err.Error())
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RESPMSG_FAIL,
+				"type":    utils.RESPMSG_ERROR_USERADD,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_USERADD),
+			},
+		}
+	}
+	var userInfo model.User
+	userInfo.IsActive = true
+	userInfo.ModifiedBy = "root"
+
+	isSuccess := uc.UserService.UpdateUser(userEntity.ActiveCode, userInfo)
+	if !isSuccess {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_USERADD,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_USERADD),
+			},
+		}
+	}
 
 	iris.New().Logger().Info(COMMENT + "End")
 	return mvc.Response{

@@ -20,7 +20,7 @@ type User struct {
 	ModifiedBy string    `json:"modified_by"`
 	DeletedAt  time.Time `xorm:"deleted" json:"deleted_at"`
 	DeletedBy  string    `json:"deleted_by"`
-	IsDelete   int64     `json:"is_delete"`
+	ActiveCode string    `json:"active_code"`
 }
 
 /**
@@ -40,7 +40,7 @@ func (user *User) UserToRespDesc() interface{} {
 		"modified_by": user.ModifiedBy,
 		"deleted_at":  user.DeletedAt,
 		"deleted_by":  user.DeletedBy,
-		"is_delete":   user.IsDelete,
+		"active_code": user.ActiveCode,
 	}
 	return respInfo
 }

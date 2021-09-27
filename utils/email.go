@@ -18,6 +18,8 @@ type EmailParam struct {
 	Toers string
 	// CCers 抄送者邮件，如有多个，则以英文逗号(“,”)隔开，可以为空
 	CCers string
+	//用户识别CD(uuid)
+	ActiveCode string
 	//邮件主体
 	Message *gomail.Message
 }
@@ -54,42 +56,10 @@ func InitEmail(ep *EmailParam) {
 	ep.Message.SetHeader("Subject", "From Bridge System")
 	//str := fmt.Formatter()
 	// 正文
-	message := `<div>
-    <h3>〇〇様</h3>　
-    <p>お世話になっております。</p>
-	</br>
-    <p>この度は、「BRS」にお申し込み頂きまして</p>
-    <p>誠にありがとうございます。</p>
-
-    <p>お申し込み頂きましたアカウント情報は以下となります。</p>
-
-    <p>・Username：{0}</p>
-    <p>・Password：個人情報のため表示を伏せています</p>
-
-    <p>ご本人様確認のため、<a href="https://www.google.com">ここ</a>をクリックし</p>
-    <p>アカウントの認証を完了させて下さい。</p>
-	</br>
-    <p>※当メールは送信専用メールアドレスから配信されています。</p>
-    <p>このままご返信いただいてもお答えできませんのでご了承ください。</p>
-	
-    <p>※当メールに心当たりの無い場合は、誠に恐れ入りますが</p>
-    <p>破棄して頂けますよう、よろしくお願い致します。</p>
-
-    <p>今後ともよろしくお願い申し上げます。</p>
-    <p>/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</p>
-
-    <p>「BRS」は</p>
-    <p>株式会社ブリッジの「」サービスです。</p>
-
-    <p>サポートについては下記連絡先までご連絡下さい</p>
-
-    <p>email:info@bridge.vc</p>
-    <p>TEL:03-6222-3222</p>
-
-    <p>/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</p>
-
-    <p>Account　by　BRS　セキュリティサービス
-</div>`
+	message :=
+		"<p>ご本人様確認のため、<a href=\"http://0.0.0.0:8050/#/Active" + "?active_code=" + ep.ActiveCode + "\">ここ</a>をクリックし</p>" +
+			"<p>アカウントの認証を完了させて下さい。</p>" +
+			"By BRS セキュリティサービス</p>"
 
 	ep.Message.SetBody("text/html", message)
 

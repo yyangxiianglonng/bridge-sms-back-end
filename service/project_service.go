@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/kataras/iris/v12"
 	"main/model"
 	"xorm.io/xorm"
 )
@@ -44,7 +43,6 @@ func (pr *projectService) GetProjects() (projectList []*model.Project) {
 	//}
 	//debug用↑
 	if err != nil {
-		iris.New().Logger().Error(err.Error())
 		panic(err.Error())
 	}
 	return
@@ -56,7 +54,6 @@ func (pr *projectService) GetProjects() (projectList []*model.Project) {
 func (pr *projectService) GetProject(projectCode string) (project []*model.Project) {
 	err := pr.Engine.Where("is_delete = ?", 0).And("project_code = ?", projectCode).Find(&project)
 	if err != nil {
-		iris.New().Logger().Error(err.Error())
 		panic(err.Error())
 	}
 	return
