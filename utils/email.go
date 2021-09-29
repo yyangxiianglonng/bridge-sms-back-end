@@ -2,6 +2,7 @@ package utils
 
 import (
 	"github.com/go-gomail/gomail"
+	"main/config"
 	"strings"
 )
 
@@ -57,7 +58,7 @@ func InitEmail(ep *EmailParam) {
 	//str := fmt.Formatter()
 	// 正文
 	message :=
-		"<p>ご本人様確認のため、<a href=\"http://0.0.0.0:8050/#/Active" + "?active_code=" + ep.ActiveCode + "\">ここ</a>をクリックし</p>" +
+		"<p>ご本人様確認のため、<a href=\"http://" + config.InitConfig().Host + "/#/Active" + "?active_code=" + ep.ActiveCode + "\">ここ</a>をクリックし</p>" +
 			"<p>アカウントの認証を完了させて下さい。</p>" +
 			"By BRS セキュリティサービス</p>"
 

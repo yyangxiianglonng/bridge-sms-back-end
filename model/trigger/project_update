@@ -1,0 +1,10 @@
+create
+definer = bridge@`%` trigger project_update
+    after
+update
+    on project
+    for each row
+BEGIN
+INSERT INTO timeline (timeline.project_code, timeline.type, timeline.status, timeline.change_at, timeline.change_by, timeline.changed)
+VALUES (new.project_code, "UPDATE", "PROJECT", new.modified_at, new.modified_by, new.project_code);
+END;

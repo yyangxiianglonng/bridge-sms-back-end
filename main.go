@@ -36,11 +36,11 @@ func newApp() (app *iris.Application) {
 	app.Logger().SetLevel("debug")
 
 	//注册静态资源
-	app.HandleDir("/static", "/Users/yangxianglong/Projects/WebstormProjects/bridgef/dist/static")
+	app.HandleDir("/static", config.InitConfig().Static+"/static")
 	//app.HandleDir("/static", "C:/inetpub/bridgesys/dist/static")
 
 	//注册视图文件
-	app.RegisterView(iris.HTML("/Users/yangxianglong/Projects/WebstormProjects/bridgef/dist", ".html"))
+	app.RegisterView(iris.HTML(config.InitConfig().Static, ".html"))
 	//app.RegisterView(iris.HTML("C:/inetpub/bridgesys/dist", ".html"))
 	app.Get("/", func(context iris.Context) {
 		context.View("index.html")

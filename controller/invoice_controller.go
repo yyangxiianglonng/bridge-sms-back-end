@@ -153,7 +153,6 @@ type AddInvoiceEntity struct {
 	Note         string `json:"note"`
 	CreatedBy    string `json:"created_by"`
 	ModifiedBy   string `json:"modified_by"`
-	IsDelete     int64  `json:"is_delete"`
 }
 
 /**
@@ -209,7 +208,6 @@ func (in *InvoiceController) Post() mvc.Result {
 	invoiceInfo.Remarks = invoiceEntity.Remarks
 	invoiceInfo.Note = invoiceEntity.Note
 	invoiceInfo.CreatedBy = invoiceEntity.CreatedBy
-	invoiceInfo.IsDelete = invoiceEntity.IsDelete
 
 	isSuccess := in.InvoiceService.SaveInvoice(invoiceInfo)
 	if !isSuccess {
@@ -286,7 +284,6 @@ func (in *InvoiceController) Put() mvc.Result {
 	invoiceInfo.Remarks = invoiceEntity.Remarks
 	invoiceInfo.Note = invoiceEntity.Note
 	invoiceInfo.ModifiedBy = invoiceEntity.ModifiedBy
-	invoiceInfo.IsDelete = invoiceEntity.IsDelete
 
 	isSuccess := in.InvoiceService.UpdateInvoice(invoiceEntity.InvoiceCode, invoiceInfo)
 	if !isSuccess {

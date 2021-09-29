@@ -1,0 +1,9 @@
+create
+definer = bridge@`%` trigger order_insert
+    after insert
+    on `order`
+    for each row
+BEGIN
+INSERT INTO timeline (timeline.project_code, timeline.type, timeline.status, timeline.change_at, timeline.change_by, timeline.changed)
+VALUES (new.project_code, "INSERT", "ORDER", new.created_at, new.created_by, new.order_code);
+END;

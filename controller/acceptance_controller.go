@@ -154,7 +154,7 @@ type AddAcceptanceEntity struct {
 	AcceptanceDate string `json:"acceptance_date"`
 	Remarks        string `json:"remarks"`
 	CreatedBy      string `json:"created_by"`
-	IsDelete       int64  `json:"is_delete"`
+	ModifiedBy     string `json:"modified_by"`
 }
 
 /**
@@ -212,7 +212,6 @@ func (ac *AcceptanceController) Post() mvc.Result {
 	acceptanceInfo.AcceptanceDate = acceptanceEntity.AcceptanceDate
 	acceptanceInfo.Remarks = acceptanceEntity.Remarks
 	acceptanceInfo.CreatedBy = acceptanceEntity.CreatedBy
-	acceptanceInfo.IsDelete = acceptanceEntity.IsDelete
 
 	isSuccess := ac.AcceptanceService.SaveAcceptance(acceptanceInfo)
 	if !isSuccess {
@@ -291,8 +290,7 @@ func (ac *AcceptanceController) Put() mvc.Result {
 	acceptanceInfo.Memo3 = acceptanceEntity.Memo3
 	acceptanceInfo.AcceptanceDate = acceptanceEntity.AcceptanceDate
 	acceptanceInfo.Remarks = acceptanceEntity.Remarks
-	acceptanceInfo.CreatedBy = acceptanceEntity.CreatedBy
-	acceptanceInfo.IsDelete = acceptanceEntity.IsDelete
+	acceptanceInfo.ModifiedBy = acceptanceEntity.ModifiedBy
 
 	isSuccess := ac.AcceptanceService.UpdateAcceptance(acceptanceEntity.AcceptanceCode, acceptanceInfo)
 	if !isSuccess {

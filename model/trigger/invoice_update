@@ -1,0 +1,11 @@
+create
+definer = bridge@`%` trigger invoice_update
+    after
+update
+    on invoice
+    for each row
+BEGIN
+INSERT INTO timeline (timeline.project_code, timeline.type, timeline.status, timeline.change_at, timeline.change_by, timeline.changed)
+VALUES (new.project_code, "UPDATE", "INVOICE", new.modified_at, new.modified_by, new.invoice_code);
+END;
+

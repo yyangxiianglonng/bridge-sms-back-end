@@ -153,7 +153,7 @@ type AddDeliveryEntity struct {
 	DeliveryDate  string `json:"delivery_date"`
 	Remarks       string `json:"remarks"`
 	CreatedBy     string `json:"created_by"`
-	IsDelete      int64  `json:"is_delete"`
+	ModifiedBy    string `json:"modified_by"`
 }
 
 /**
@@ -210,7 +210,6 @@ func (de *DeliveryController) Post() mvc.Result {
 	deliveryInfo.DeliveryDate = deliveryEntity.DeliveryDate
 	deliveryInfo.Remarks = deliveryEntity.Remarks
 	deliveryInfo.CreatedBy = deliveryEntity.CreatedBy
-	deliveryInfo.IsDelete = deliveryEntity.IsDelete
 
 	isSuccess := de.DeliveryService.SaveDelivery(deliveryInfo)
 	if !isSuccess {
@@ -287,8 +286,7 @@ func (de *DeliveryController) Put() mvc.Result {
 	deliveryInfo.Memo3 = deliveryEntity.Memo3
 	deliveryInfo.DeliveryDate = deliveryEntity.DeliveryDate
 	deliveryInfo.Remarks = deliveryEntity.Remarks
-	deliveryInfo.CreatedBy = deliveryEntity.CreatedBy
-	deliveryInfo.IsDelete = deliveryEntity.IsDelete
+	deliveryInfo.ModifiedBy = deliveryEntity.ModifiedBy
 
 	isSuccess := de.DeliveryService.UpdateDelivery(deliveryEntity.DeliveryCode, deliveryInfo)
 	if !isSuccess {

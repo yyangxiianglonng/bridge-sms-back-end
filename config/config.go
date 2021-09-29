@@ -13,6 +13,7 @@ type AppConfig struct {
 	Host      string   `json:"host"`
 	Port      string   `json:"port"`
 	Mode      string   `json:"mode"`
+	Static    string   `json:"static"`
 	JwtSecret string   `json:"jwt_secret"`
 	DataBase  DataBase `json:"data_base"`
 	Email     Email    `json:"email"`
@@ -41,7 +42,7 @@ type Email struct {
 }
 
 func InitConfig() (config *AppConfig) {
-	file, err := os.Open("/Users/yangxianglong/go/Vue_Iris/back-end/config.json")
+	file, err := os.Open("./config.json")
 	//file, err := os.Open("C:/inetpub/bridgesys/config.json")
 	if err != nil {
 		panic((err.Error()))

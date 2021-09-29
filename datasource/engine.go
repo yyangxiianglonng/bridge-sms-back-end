@@ -32,7 +32,8 @@ func NewMysqlEngine() *xorm.Engine {
 		new(model.Invoice),
 		new(model.Customer),
 		new(model.Product),
-		new(model.Category))
+		new(model.Category),
+		new(model.Timeline))
 
 	if err != nil {
 		panic(err.Error())

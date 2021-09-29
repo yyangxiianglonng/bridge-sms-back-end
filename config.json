@@ -1,14 +1,15 @@
 {
   "app_name": "Vue_Iris",
   "host": "0.0.0.0",
-  "port": "8050",
+  "port": "80",
+  "static": "/Users/yangxianglong/Projects/WebstormProjects/bridgef/dist",
   "data_base": {
     "drive": "mysql",
-    "host": "192.168.3.39",
+    "host": "192.168.3.9",
     "port": "3306",
-    "user": "iris",
-    "pwd": "iris",
-    "database": "Go_Iris_DB"
+    "user": "bridge",
+    "pwd": "Bridge2021!",
+    "database": "DB_Bridge"
   },
   "email": {
     "serverHost": "smtp-mail.outlook.com",

@@ -11,6 +11,7 @@ import (
 type ProjectService interface {
 	GetProjects() []*model.Project
 	GetProject(projectCode string) []*model.Project
+	GetTimeline(projectCode string) (timeline []*model.Timeline)
 	SaveProject(project model.Project) bool
 	UpdateProject(projectCode string, estimate model.Project) bool
 }
@@ -73,4 +74,16 @@ func (pr *projectService) SaveProject(project model.Project) bool {
 func (pr *projectService) UpdateProject(projectCode string, project model.Project) bool {
 	_, err := pr.Engine.Where("project_code = ?", projectCode).Update(project)
 	return err == nil
+}
+
+/**
+ * 根据案件CD获取时间线数据服务
+ */
+func (pr *projectService) GetTimeline(projectCode string) (timeline []*model.Timeline) {
+	err := pr.Engine.Where("project_code = ?", projectCode).Find(&timeline)
+
+	if err != nil {
+		panic(err.Error())
+	}
+	return
 }

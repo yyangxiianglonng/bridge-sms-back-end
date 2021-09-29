@@ -19,6 +19,8 @@ type ProjectController struct {
 func (pr *ProjectController) BeforeActivation(ba mvc.BeforeActivation) {
 	//通过project_code获取对应的案件
 	ba.Handle("GET", "/one/{project_code}", "GetOneByProjectCode")
+	//通过project_code获取对应的时间线数据
+	ba.Handle("GET", "/timeline/{project_code}", "GetTimelineByProjectCode")
 }
 
 /**
@@ -126,6 +128,59 @@ func (pr *ProjectController) GetOneByProjectCode() mvc.Result {
 }
 
 /**
+ * url: /v1/project/timeline/{project_code}
+ * type：GET
+ * descs：通过案件CD获取时间线功能
+ */
+func (pr *ProjectController) GetTimelineByProjectCode() mvc.Result {
+	const COMMENT = "method:Get url:/v1/project/timeline/{project_code} Controller:ProjectController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+	token := pr.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
+	projectCode := pr.Context.Params().Get("project_code")
+	timeline := pr.ProjectService.GetTimeline(projectCode)
+
+	if timeline == nil {
+		iris.New().Logger().Error(COMMENT + " ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_TIMELINE,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_TIMELINE),
+			},
+		}
+	}
+
+	//将查询到的用户数据进行转换成前端需要的内容
+	var respList []interface{}
+	for _, item := range timeline {
+		respList = append(respList, item.TimelineToRespDesc())
+	}
+
+	//返回案件列表
+	iris.New().Logger().Info(COMMENT + "End")
+	return mvc.Response{
+		Object: map[string]interface{}{
+			"status":  utils.RECODE_OK,
+			"type":    utils.RESPMSG_SUCCESS_TIMELINE,
+			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_TIMELINE),
+			"data":    &respList,
+		},
+	}
+}
+
+/**
  * 即将添加的案件记录实体
  */
 type AddProjectEntity struct {
@@ -136,6 +191,7 @@ type AddProjectEntity struct {
 	PersonnelName string `json:"personnel_name"`
 	Synopsis      string `json:"synopsis"`
 	CreatedBy     string `json:"created_by"`
+	ModifiedBy    string `json:"modified_by"`
 	IsDelete      int64  `json:"is_delete"`
 }
 
@@ -182,7 +238,6 @@ func (pr *ProjectController) Post() mvc.Result {
 	projectInfo.PersonnelName = projectEntity.PersonnelName
 	projectInfo.Synopsis = projectEntity.Synopsis
 	projectInfo.CreatedBy = projectEntity.CreatedBy
-	projectInfo.IsDelete = projectEntity.IsDelete
 
 	isSuccess := pr.ProjectService.SaveProject(projectInfo)
 	if !isSuccess {
@@ -249,8 +304,7 @@ func (pr *ProjectController) Put() mvc.Result {
 	projectInfo.CustomerName = projectEntity.CustomerName
 	projectInfo.PersonnelName = projectEntity.PersonnelName
 	projectInfo.Synopsis = projectEntity.Synopsis
-	projectInfo.CreatedBy = projectEntity.CreatedBy
-	projectInfo.IsDelete = projectEntity.IsDelete
+	projectInfo.ModifiedBy = projectEntity.ModifiedBy
 
 	isSuccess := pr.ProjectService.UpdateProject(projectInfo.ProjectCode, projectInfo)
 	if !isSuccess {

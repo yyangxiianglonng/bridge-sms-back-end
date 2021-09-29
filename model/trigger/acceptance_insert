@@ -1,0 +1,11 @@
+create
+definer = bridge@`%` trigger delivery_update
+    after
+update
+    on delivery
+    for each row
+BEGIN
+INSERT INTO timeline (timeline.project_code, timeline.type, timeline.status, timeline.change_at, timeline.change_by, timeline.changed)
+VALUES (new.project_code, "UPDATE", "DELIVERY", new.modified_at, new.modified_by, new.delivery_code);
+END;
+

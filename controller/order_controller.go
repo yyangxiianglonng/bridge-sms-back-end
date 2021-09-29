@@ -154,7 +154,7 @@ type AddOrderEntity struct {
 	Other                string `json:"other"`
 	Note                 string `json:"note"`
 	CreatedBy            string `json:"created_by"`
-	IsDelete             int64  `json:"is_delete"`
+	ModifiedBy           string `json:"modified_by"`
 }
 
 /**
@@ -212,7 +212,6 @@ func (or *OrderController) Post() mvc.Result {
 	orderInfo.Other = orderEntity.Other
 	orderInfo.Note = orderEntity.Note
 	orderInfo.CreatedBy = orderEntity.CreatedBy
-	orderInfo.IsDelete = orderEntity.IsDelete
 
 	isSuccess := or.OrderService.SaveOrder(orderInfo)
 	if !isSuccess {
@@ -290,8 +289,7 @@ func (or *OrderController) Put() mvc.Result {
 	orderInfo.AcceptanceConditions = orderEntity.AcceptanceConditions
 	orderInfo.Other = orderEntity.Other
 	orderInfo.Note = orderEntity.Note
-	orderInfo.CreatedBy = orderEntity.CreatedBy
-	orderInfo.IsDelete = orderEntity.IsDelete
+	orderInfo.ModifiedBy = orderEntity.ModifiedBy
 
 	isSuccess := or.OrderService.UpdateOrder(orderEntity.OrderCode, orderInfo)
 	if !isSuccess {

@@ -14,13 +14,13 @@ type User struct {
 	Email      string    `json:"email"`                 //用户的邮箱
 	PassWord   string    `json:"pass_word"`             //用户的账户密码
 	IsActive   bool      `json:"is_active"`             //用户是否激活
+	ActiveCode string    `json:"active_code"`
 	CreatedAt  time.Time `xorm:"created" json:"created_at"`
 	CreatedBy  string    `json:"created_by"`
 	ModifiedAt time.Time `xorm:"updated" json:"modified_at"`
 	ModifiedBy string    `json:"modified_by"`
 	DeletedAt  time.Time `xorm:"deleted" json:"deleted_at"`
 	DeletedBy  string    `json:"deleted_by"`
-	ActiveCode string    `json:"active_code"`
 }
 
 /**
@@ -34,13 +34,13 @@ func (user *User) UserToRespDesc() interface{} {
 		"email":       user.Email,
 		"pass_word":   user.PassWord,
 		"is_active":   user.IsActive,
+		"active_code": user.ActiveCode,
 		"created_at":  user.CreatedAt,
 		"created_by":  user.CreatedBy,
 		"modified_at": user.ModifiedAt,
 		"modified_by": user.ModifiedBy,
 		"deleted_at":  user.DeletedAt,
 		"deleted_by":  user.DeletedBy,
-		"active_code": user.ActiveCode,
 	}
 	return respInfo
 }
