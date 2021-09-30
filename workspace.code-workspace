@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../../Projects/WebstormProjects/bridgef"
+		}
+	],
+	"settings": {
+		"npm-scripts.showStartNotification": false
+	}
+}

@@ -110,7 +110,6 @@ func (us *userService) GetUserTotalCount() (int64, error) {
 	count, err := us.Engine.Where(" del_flag = ? ", 0).Count(new(model.User))
 	if err != nil {
 		panic(err.Error())
-		return 0, err
 	}
 	//用户总数
 	return count, nil

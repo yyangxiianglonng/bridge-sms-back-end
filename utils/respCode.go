@@ -225,7 +225,7 @@ var recodeText = map[string]string{
 	RESPMSG_SUCCESS_PROJECTGET:    "案件取得成功",
 	RESPMSG_ERROR_PROJECTGET:      "案件取得失敗",
 	RESPMSG_SUCCESS_TIMELINE:      "タイムライン取得成功",
-	RESPMSG_ERROR_TIMELINE:        "タイムライン案件取得失敗",
+	RESPMSG_ERROR_TIMELINE:        "タイムライン取得失敗",
 
 	//见积
 	RESPMSG_SUCCESS_ESTIMATEADD:    "見積追加成功",
