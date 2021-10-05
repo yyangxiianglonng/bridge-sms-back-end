@@ -5,7 +5,7 @@
   "static": "/Users/yangxianglong/Projects/WebstormProjects/bridgef/dist",
   "data_base": {
     "drive": "mysql",
-    "host": "192.168.3.9",
+    "host": "192.168.3.39",
     "port": "3306",
     "user": "bridge",
     "pwd": "Bridge2021!",

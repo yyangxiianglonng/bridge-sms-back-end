@@ -1,13 +1,14 @@
 package controller
 
 import (
-	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/mvc"
-	"github.com/kataras/iris/v12/sessions"
 	"main/model"
 	"main/service"
 	"main/utils"
 	"time"
+
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/mvc"
+	"github.com/kataras/iris/v12/sessions"
 )
 
 type EstimateController struct {
@@ -609,8 +610,9 @@ func (es *EstimateController) DrawPdfByEstimateCode() mvc.Result {
 
 	estimateCode := es.Context.Params().Get("estimate_code")
 	estimate := es.EstimateService.GetEstimate(estimateCode)
+	estimateDetail := es.EstimateService.GetEstimateDetails(estimateCode)
 
-	if estimate == nil {
+	if estimate == nil || estimateDetail == nil {
 		iris.New().Logger().Error(COMMENT + "ERR")
 		return mvc.Response{
 			Object: map[string]interface{}{
@@ -627,7 +629,7 @@ func (es *EstimateController) DrawPdfByEstimateCode() mvc.Result {
 		respList = append(respList, item.EstimateToRespDesc())
 	}
 
-	utils.NewPdf()
+	utils.NewPdf(estimate, estimateDetail)
 	//返回pdf文件
 	iris.New().Logger().Info(COMMENT + "End")
 	return mvc.Response{

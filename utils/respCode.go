@@ -318,7 +318,7 @@ var recodeText = map[string]string{
 	RESPMSG_ERROR_PRODUCTDELETE:   "商品削除失敗",
 
 	//用户
-	RESPMSG_SUCCESS_USERADD:    "User ID追加成功",
+	RESPMSG_SUCCESS_USERADD:    "User ID追加成功,",
 	RESPMSG_ERROR_USERADD:      "User ID追加失敗",
 	RESPMSG_SUCCESS_USERUPDATE: "User情報更新成功",
 	RESPMSG_ERROR_USERUPDATE:   "User情報更新失敗",
