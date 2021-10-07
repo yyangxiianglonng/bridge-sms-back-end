@@ -10,6 +10,7 @@ import (
 type Estimate struct {
 	Id                int64     `xorm:"pk unique autoincr" json:"id"`
 	EstimateCode      string    `json:"estimate_code"`
+	EstimateName      string    `json:"estimate_name"`
 	ProjectCode       string    `json:"project_code"`
 	ProjectName       string    `json:"project_name"`
 	CustomerName      string    `json:"customer_name"`
@@ -78,6 +79,7 @@ func (estimate *Estimate) EstimateToRespDesc() (respInfo interface{}) {
 	respInfo = map[string]interface{}{
 		"id":                  estimate.Id,
 		"estimate_code":       estimate.EstimateCode,
+		"estimate_name":       estimate.EstimateName,
 		"project_code":        estimate.ProjectCode,
 		"project_name":        estimate.ProjectName,
 		"customer_name":       estimate.CustomerName,

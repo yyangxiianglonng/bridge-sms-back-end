@@ -14,6 +14,7 @@ type AppConfig struct {
 	Port      string   `json:"port"`
 	Mode      string   `json:"mode"`
 	Static    string   `json:"static"`
+	FilePath  string   `json:"file_path"`
 	JwtSecret string   `json:"jwt_secret"`
 	DataBase  DataBase `json:"data_base"`
 	Email     Email    `json:"email"`

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"main/config"
 	"main/model"
 	"main/service"
 	"main/utils"
@@ -30,9 +31,62 @@ func (es *EstimateController) BeforeActivation(ba mvc.BeforeActivation) {
 	ba.Handle("PUT", "/detail", "PutEstimateDetail")
 	//删除见积详细
 	ba.Handle("DELETE", "/detail/{estimate_details_code}", "DeleteDetail")
-
+	//生成见积书PDF文件
 	ba.Handle("GET", "/pdf/{estimate_code}", "DrawPdfByEstimateCode")
+	//下载见积书PDF文件
+	ba.Handle("GET", "/download/{destination_name}", "PdfDownload")
+}
 
+/**
+ * url: /v1/estimate
+ * type：GET
+ * descs：获取所有见积功能
+ */
+func (es *EstimateController) Get() mvc.Result {
+	const COMMENT = "method:Get url:/v1/estimate Controller:EstimateController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := es.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
+	estimate := es.EstimateService.GetEstimateAll()
+	if estimate == nil {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ESTIMATEGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEGET),
+			},
+		}
+	}
+
+	//将查询到的见积数据进行转换成前端需要的内容
+	var respList []interface{}
+	for _, item := range estimate {
+		respList = append(respList, item.EstimateToRespDesc())
+	}
+
+	//返回见积列表
+	iris.New().Logger().Info(COMMENT + "End")
+	return mvc.Response{
+		Object: map[string]interface{}{
+			"status":  utils.RECODE_OK,
+			"type":    utils.RESPMSG_SUCCESS_ESTIMATEGET,
+			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEGET),
+			"data":    &respList,
+		},
+	}
 }
 
 /**
@@ -149,6 +203,7 @@ func (es *EstimateController) GetOneByEstimateCode() mvc.Result {
 type AddEstimateEntity struct {
 	Id                string    `json:"id"`
 	EstimateCode      string    `json:"estimate_code"`
+	EstimateName      string    `json:"estimate_name"`
 	ProjectCode       string    `json:"project_code"`
 	ProjectName       string    `json:"project_name"`
 	CustomerName      string    `json:"customer_name"`
@@ -220,6 +275,7 @@ func (es *EstimateController) Post() mvc.Result {
 	var estimateInfo model.Estimate
 
 	estimateInfo.EstimateCode = estimateEntity.EstimateCode
+	estimateInfo.EstimateName = estimateEntity.EstimateName
 	estimateInfo.ProjectCode = estimateEntity.ProjectCode
 	estimateInfo.ProjectName = estimateEntity.ProjectName
 	estimateInfo.CustomerName = estimateEntity.CustomerName
@@ -311,6 +367,7 @@ func (es *EstimateController) Put() mvc.Result {
 	var estimateInfo model.Estimate
 
 	estimateInfo.EstimateCode = estimateEntity.EstimateCode
+	estimateInfo.EstimateName = estimateEntity.EstimateName
 	estimateInfo.ProjectCode = estimateEntity.ProjectCode
 	estimateInfo.ProjectName = estimateEntity.ProjectName
 	estimateInfo.CustomerName = estimateEntity.CustomerName
@@ -589,7 +646,7 @@ func (es *EstimateController) PutEstimateDetail() mvc.Result {
 /**
  * url: /v1/estimate/pdf/{estimate_code}
  * type：GET
- * descs：获取所有见积功能
+ * descs：生成见积书PDF功能
  */
 func (es *EstimateController) DrawPdfByEstimateCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/estimate/pdf/{estimate_code} Controller:EstimateController" + " "
@@ -612,7 +669,7 @@ func (es *EstimateController) DrawPdfByEstimateCode() mvc.Result {
 	estimate := es.EstimateService.GetEstimate(estimateCode)
 	estimateDetail := es.EstimateService.GetEstimateDetails(estimateCode)
 
-	if estimate == nil || estimateDetail == nil {
+	if estimate == nil {
 		iris.New().Logger().Error(COMMENT + "ERR")
 		return mvc.Response{
 			Object: map[string]interface{}{
@@ -623,21 +680,51 @@ func (es *EstimateController) DrawPdfByEstimateCode() mvc.Result {
 		}
 	}
 
-	//将查询到的见积数据进行转换成前端需要的内容
-	var respList []interface{}
-	for _, item := range estimate {
-		respList = append(respList, item.EstimateToRespDesc())
+	if estimateDetail == nil {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ESTIMATEDETAILGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEDETAILGET),
+			},
+		}
 	}
+
+	//将查询到的见积数据进行转换成前端需要的内容
+	// var respList []interface{}
+	// for _, item := range estimate {
+	// 	respList = append(respList, item.EstimateToRespDesc())
+	// }
 
 	utils.NewPdf(estimate, estimateDetail)
 	//返回pdf文件
 	iris.New().Logger().Info(COMMENT + "End")
 	return mvc.Response{
 		Object: map[string]interface{}{
-			"status":  utils.RECODE_OK,
-			"type":    utils.RESPMSG_SUCCESS_ESTIMATEGET,
-			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEGET),
+			"status":   utils.RECODE_OK,
+			"type":     utils.RESPMSG_SUCCESS_ESTIMATEGET,
+			"message":  utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEGET),
+			"filename": estimateCode + ".pdf",
 		},
+	}
+}
+
+/**
+ * url: /v1/estimate/download/{destination_name}
+ * type：GET
+ * descs：下载见积书PDF功能
+ */
+func (es *EstimateController) PdfDownload() {
+	const COMMENT = "method:Get url:/v1/estimate/download/{destination_name} Controller:EstimateController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+	destinationName := es.Context.Params().Get("destination_name")
+	fileName := config.InitConfig().FilePath + "/pdf/estimate/" + time.Now().Format("2006-01-02") + "/" + destinationName
+
+	err := es.Context.SendFile(fileName, destinationName)
+	if err != nil {
+		iris.New().Logger().Error(err.Error())
+		panic(err.Error())
 	}
 }
 

@@ -3,6 +3,7 @@
   "host": "0.0.0.0",
   "port": "80",
   "static": "/Users/yangxianglong/Projects/WebstormProjects/bridgef/dist",
+  "file_path": "/Users/yangxianglong/go/Vue_Iris/back-end/static/file",
   "data_base": {
     "drive": "mysql",
     "host": "192.168.3.39",

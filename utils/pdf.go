@@ -2,16 +2,20 @@ package utils
 
 import (
 	"fmt"
+	"io/ioutil"
 	"main/model"
+	"os"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/kataras/iris/v12"
 	"github.com/signintech/gopdf"
 )
 
 const FONTPATH = "/Users/yangxianglong/go/Vue_Iris/back-end/static/font/"
 const IMGPATH = "/Users/yangxianglong/go/Vue_Iris/back-end/static/img/"
-const FILEPATH = "/Users/yangxianglong/go/Vue_Iris/back-end/static/file/"
+const FILEPATH = "/Users/yangxianglong/go/Vue_Iris/back-end/static/file/pdf/estimate/"
 
 func NewPdf(estimate []*model.Estimate, estimateDetail []*model.EstimateDetail) {
 	//获取见积头数据
@@ -39,13 +43,30 @@ func NewPdf(estimate []*model.Estimate, estimateDetail []*model.EstimateDetail) 
 	Customer(&pdf, estimateInfo)
 	// drawGrid(&pdf)
 	Company(&pdf, estimateInfo)
+	EstimateName(&pdf, estimateInfo)
 	BodyTitle(&pdf)
 	Work(&pdf, estimateInfo)
 	Deliverables(&pdf, estimateInfo)
 	WorkSpace(&pdf, estimateInfo)
 	EstimateDetail(&pdf, estimateInfo, estimateDetailInfoInitial, estimateDetailInfoRunning)
+
+	now := time.Now().Format("2006-01-02")
+	_, err := os.Stat(FILEPATH + now)
+	if err != nil {
+		os.Mkdir(FILEPATH+now, os.ModePerm)
+	}
+
+	fileInfo, _ := ioutil.ReadDir(FILEPATH + now)
+
+	var files []string
+	for _, file := range fileInfo {
+		files = append(files, file.Name())
+	}
+
+	iris.New().Logger().Info(len(files))
+
 	// PaymentConditions(&pdf, estimateInfo)
-	pdf.WritePdf(FILEPATH + "pdf/見積書.pdf")
+	pdf.WritePdf(FILEPATH + now + "/" + estimateInfo.EstimateCode + ".pdf")
 }
 
 /*
@@ -194,6 +215,19 @@ func BodyTitle(pdf *gopdf.GoPdf) {
 	pdf.SetX(120)
 	pdf.SetY(620)
 	pdf.Cell(nil, "５．お見積金額")
+}
+
+//见积对象案件名
+func EstimateName(pdf *gopdf.GoPdf, info model.Estimate) {
+	err := pdf.AddTTFFont("ipaexm", FONTPATH+"ipaexm.ttf")
+	if err != nil {
+		panic(err)
+	}
+
+	pdf.SetFont("ipaexm", "", 11) //フォント、文字サイズ指定
+	pdf.SetX(153)
+	pdf.SetY(390)
+	pdf.Cell(nil, info.EstimateName)
 }
 
 //作业内容
@@ -566,30 +600,35 @@ func EstimateDetail(pdf *gopdf.GoPdf, info model.Estimate, infoInitial []model.E
 
 		//补足部分
 		lineY1 += lineH*float64(lenInfoRunning) + 1
-		pdf.SetFont("ipaexm", "b", 10) //フォント、文字サイズ指定
-		pdf.SetX(lineX1)
-		pdf.SetY(lineY1)
-		pdf.Cell(nil, "【補　足】")
 		arr_str := strings.Split(info.Supplement, "\n")
-		for index, str := range arr_str {
-			pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
-			pdf.SetX(183)
-			pdf.SetY(lineY1 + 10 + float64(index*10))
-			pdf.Cell(nil, str)
+		if len(info.Supplement) != 0 {
+			pdf.SetFont("ipaexm", "b", 10) //フォント、文字サイズ指定
+			pdf.SetX(lineX1)
+			pdf.SetY(lineY1)
+			pdf.Cell(nil, "【補　足】")
+			for index, str := range arr_str {
+				pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
+				pdf.SetX(183)
+				pdf.SetY(lineY1 + 10 + float64(index*10))
+				pdf.Cell(nil, str)
+			}
 		}
 
 		//5.3见积书部分
-		lineY1 += float64((len(arr_str)+1)*10) + 10
-		pdf.SetFont("ipaexm", "b", 10) //フォント、文字サイズ指定
-		pdf.SetX(lineX1)
-		pdf.SetY(lineY1)
-		pdf.Cell(nil, "5.3　その他費用")
-		arr_str = strings.Split(info.PaymentConditions, "\n")
-		for index, str := range arr_str {
-			pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
-			pdf.SetX(183)
-			pdf.SetY(lineY1 + 10 + float64(index*10))
-			pdf.Cell(nil, str)
+
+		if len(info.Other) != 0 {
+			lineY1 += float64((len(arr_str)+1)*10) + 10
+			pdf.SetFont("ipaexm", "b", 10) //フォント、文字サイズ指定
+			pdf.SetX(lineX1)
+			pdf.SetY(lineY1)
+			pdf.Cell(nil, "5.3　その他費用")
+			arr_str = strings.Split(info.Other, "\n")
+			for index, str := range arr_str {
+				pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
+				pdf.SetX(183)
+				pdf.SetY(lineY1 + 10 + float64(index*10))
+				pdf.Cell(nil, str)
+			}
 		}
 
 		lineY1 += float64((len(arr_str)+1)*10) + 15
@@ -709,32 +748,38 @@ func EstimateDetail(pdf *gopdf.GoPdf, info model.Estimate, infoInitial []model.E
 
 		//补足部分
 		lineY1 += lineH*float64(lenInfoInitial) + 1
-		pdf.SetFont("ipaexm", "b", 10) //フォント、文字サイズ指定
-		pdf.SetX(lineX1)
-		pdf.SetY(lineY1)
-		pdf.Cell(nil, "【補　足】")
 		arr_str := strings.Split(info.Supplement, "\n")
-		for index, str := range arr_str {
-			pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
-			pdf.SetX(183)
-			pdf.SetY(lineY1 + 10 + float64(index*10))
-			pdf.Cell(nil, str)
+
+		iris.New().Logger().Info(len(info.Supplement))
+		iris.New().Logger().Info(info.Supplement)
+		if len(info.Supplement) != 0 {
+			pdf.SetFont("ipaexm", "b", 10) //フォント、文字サイズ指定
+			pdf.SetX(lineX1)
+			pdf.SetY(lineY1)
+			pdf.Cell(nil, "【補　足】")
+			for index, str := range arr_str {
+				pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
+				pdf.SetX(183)
+				pdf.SetY(lineY1 + 10 + float64(index*10))
+				pdf.Cell(nil, str)
+			}
 		}
 
 		//5.3见积书部分
-		lineY1 += float64((len(arr_str)+1)*10) + 10
-		pdf.SetFont("ipaexm", "b", 10) //フォント、文字サイズ指定
-		pdf.SetX(lineX1)
-		pdf.SetY(lineY1)
-		pdf.Cell(nil, "5.2　その他費用")
-		arr_str = strings.Split(info.PaymentConditions, "\n")
-		for index, str := range arr_str {
-			pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
-			pdf.SetX(183)
-			pdf.SetY(lineY1 + 10 + float64(index*10))
-			pdf.Cell(nil, str)
+		if len(info.Other) != 0 {
+			lineY1 += float64((len(arr_str)+1)*10) + 10
+			pdf.SetFont("ipaexm", "b", 10) //フォント、文字サイズ指定
+			pdf.SetX(lineX1)
+			pdf.SetY(lineY1)
+			pdf.Cell(nil, "5.2　その他費用")
+			arr_str = strings.Split(info.Other, "\n")
+			for index, str := range arr_str {
+				pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
+				pdf.SetX(183)
+				pdf.SetY(lineY1 + 10 + float64(index*10))
+				pdf.Cell(nil, str)
+			}
 		}
-
 		lineY1 += float64((len(arr_str)+1)*10) + 15
 		PaymentConditions(pdf, lineY1, info)
 
@@ -854,30 +899,34 @@ func EstimateDetail(pdf *gopdf.GoPdf, info model.Estimate, infoInitial []model.E
 
 		//补足部分
 		lineY1 += lineH*float64(lenInfoRunning) + 1
-		pdf.SetFont("ipaexm", "b", 10) //フォント、文字サイズ指定
-		pdf.SetX(lineX1)
-		pdf.SetY(lineY1)
-		pdf.Cell(nil, "【補　足】")
 		arr_str := strings.Split(info.Supplement, "\n")
-		for index, str := range arr_str {
-			pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
-			pdf.SetX(183)
-			pdf.SetY(lineY1 + 10 + float64(index*10))
-			pdf.Cell(nil, str)
+		if len(info.Supplement) != 0 {
+			pdf.SetFont("ipaexm", "b", 10) //フォント、文字サイズ指定
+			pdf.SetX(lineX1)
+			pdf.SetY(lineY1)
+			pdf.Cell(nil, "【補　足】")
+			for index, str := range arr_str {
+				pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
+				pdf.SetX(183)
+				pdf.SetY(lineY1 + 10 + float64(index*10))
+				pdf.Cell(nil, str)
+			}
 		}
 
 		//5.3见积书部分
-		lineY1 += float64((len(arr_str)+1)*10) + 10
-		pdf.SetFont("ipaexm", "b", 10) //フォント、文字サイズ指定
-		pdf.SetX(lineX1)
-		pdf.SetY(lineY1)
-		pdf.Cell(nil, "5.2　その他費用")
-		arr_str = strings.Split(info.PaymentConditions, "\n")
-		for index, str := range arr_str {
-			pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
-			pdf.SetX(183)
-			pdf.SetY(lineY1 + 10 + float64(index*10))
-			pdf.Cell(nil, str)
+		if len(info.Other) != 0 {
+			lineY1 += float64((len(arr_str)+1)*10) + 10
+			pdf.SetFont("ipaexm", "b", 10) //フォント、文字サイズ指定
+			pdf.SetX(lineX1)
+			pdf.SetY(lineY1)
+			pdf.Cell(nil, "5.2　その他費用")
+			arr_str = strings.Split(info.Other, "\n")
+			for index, str := range arr_str {
+				pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
+				pdf.SetX(183)
+				pdf.SetY(lineY1 + 10 + float64(index*10))
+				pdf.Cell(nil, str)
+			}
 		}
 
 		lineY1 += float64((len(arr_str)+1)*10) + 15

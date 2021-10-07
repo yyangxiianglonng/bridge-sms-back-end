@@ -1,8 +1,9 @@
 package service
 
 import (
-	"github.com/kataras/iris/v12"
 	"main/model"
+
+	"github.com/kataras/iris/v12"
 	"xorm.io/xorm"
 )
 
@@ -11,6 +12,7 @@ import (
  */
 type EstimateService interface {
 	//见积头服务接口
+	GetEstimateAll() []*model.Estimate
 	GetEstimates(project_code string) []*model.Estimate
 	GetEstimate(estimate_code string) []*model.Estimate
 	SaveEstimate(estimate model.Estimate) bool
@@ -37,6 +39,18 @@ func NewEstimateService(engine *xorm.Engine) EstimateService {
  */
 type estimateService struct {
 	Engine *xorm.Engine
+}
+
+/**
+ * 请求某个案件下的所有见积列表数据
+ */
+func (es *estimateService) GetEstimateAll() (estimateList []*model.Estimate) {
+	err := es.Engine.Where("is_delete = ?", 0).Find(&estimateList)
+
+	if err != nil {
+		panic(err.Error())
+	}
+	return
 }
 
 /**

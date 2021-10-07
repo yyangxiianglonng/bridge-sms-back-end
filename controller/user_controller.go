@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"main/config"
 	"main/model"
 	"main/service"
 	"main/utils"
@@ -9,7 +8,7 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"github.com/kataras/iris/v12/sessions"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 type UserController struct {
@@ -211,17 +210,17 @@ func (uc *UserController) PostSignup() mvc.Result {
 		}
 	}
 
-	emailPara := &utils.EmailParam{
-		ServerHost: config.InitConfig().Email.ServerHost,
-		ServerPort: config.InitConfig().Email.ServerPort,
-		FromEmail:  config.InitConfig().Email.FromEmail,
-		FromPasswd: config.InitConfig().Email.FromPasswd,
-		Toers:      userInfo.Email,
-		CCers:      "yangxianglong@bridge.vc",
-		ActiveCode: userInfo.ActiveCode,
-	}
+	// emailPara := &utils.EmailParam{
+	// 	ServerHost: config.InitConfig().Email.ServerHost,
+	// 	ServerPort: config.InitConfig().Email.ServerPort,
+	// 	FromEmail:  config.InitConfig().Email.FromEmail,
+	// 	FromPasswd: config.InitConfig().Email.FromPasswd,
+	// 	Toers:      userInfo.Email,
+	// 	CCers:      "yangxianglong@bridge.vc",
+	// 	ActiveCode: userInfo.ActiveCode,
+	// }
 
-	utils.InitEmail(emailPara)
+	// utils.InitEmail(emailPara)
 
 	iris.New().Logger().Info(COMMENT + "End")
 	return mvc.Response{
