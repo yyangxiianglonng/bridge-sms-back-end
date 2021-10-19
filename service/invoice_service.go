@@ -2,6 +2,7 @@ package service
 
 import (
 	"main/model"
+
 	"xorm.io/xorm"
 )
 
@@ -9,6 +10,7 @@ import (
 * 请求书服务接口
  */
 type InvoiceService interface {
+	GetInvoiceAll() []*model.Invoice
 	GetInvoices(projectCode string) []*model.Invoice
 	GetInvoice(invoiceCode string) []*model.Invoice
 	SaveInvoice(invoice model.Invoice) bool
@@ -29,6 +31,18 @@ func NewInvoiceService(engine *xorm.Engine) InvoiceService {
  */
 type invoiceService struct {
 	Engine *xorm.Engine
+}
+
+/**
+ * 获取所有请求列表数据
+ */
+func (in *invoiceService) GetInvoiceAll() (invoiceList []*model.Invoice) {
+	err := in.Engine.Where("is_delete = ?", 0).Find(&invoiceList)
+
+	if err != nil {
+		panic(err.Error())
+	}
+	return
 }
 
 /*

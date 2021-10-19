@@ -43,8 +43,8 @@ type Email struct {
 }
 
 func InitConfig() (config *AppConfig) {
-	file, err := os.Open("./config.json")
-	//file, err := os.Open("C:/inetpub/bridgesys/config.json")
+	file, err := os.Open("./config.json") //当前目录指的是当前项目的跟目录
+	// file, err := os.Open("/Users/yangxianglong/go/Vue_Iris/back-end/config.json")
 	if err != nil {
 		panic((err.Error()))
 	}

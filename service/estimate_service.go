@@ -42,7 +42,7 @@ type estimateService struct {
 }
 
 /**
- * 请求某个案件下的所有见积列表数据
+ * 请求所有见积列表数据
  */
 func (es *estimateService) GetEstimateAll() (estimateList []*model.Estimate) {
 	err := es.Engine.Where("is_delete = ?", 0).Find(&estimateList)

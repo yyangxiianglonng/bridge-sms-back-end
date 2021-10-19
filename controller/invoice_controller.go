@@ -1,13 +1,14 @@
 package controller
 
 import (
-	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/mvc"
-	"github.com/kataras/iris/v12/sessions"
 	"main/model"
 	"main/service"
 	"main/utils"
 	"time"
+
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/mvc"
+	"github.com/kataras/iris/v12/sessions"
 )
 
 func (in *InvoiceController) BeforeActivation(ba mvc.BeforeActivation) {
@@ -21,6 +22,58 @@ type InvoiceController struct {
 	Context        iris.Context
 	InvoiceService service.InvoiceService
 	Session        *sessions.Session
+}
+
+/**
+ * url: /v1/invoice
+ * type：GET
+ * descs：获取所有请求功能
+ */
+func (in *InvoiceController) Get() mvc.Result {
+	const COMMENT = "method:Get url:/v1/invoice Controller:InvoiceController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := in.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
+	invlice := in.InvoiceService.GetInvoiceAll()
+	if invlice == nil {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_INVOICEGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_INVOICEGET),
+			},
+		}
+	}
+
+	//将查询到的见积数据进行转换成前端需要的内容
+	var respList []interface{}
+	for _, item := range invlice {
+		respList = append(respList, item.InvoiceToRespDesc())
+	}
+
+	//返回见积列表
+	iris.New().Logger().Info(COMMENT + "End")
+	return mvc.Response{
+		Object: map[string]interface{}{
+			"status":  utils.RECODE_OK,
+			"type":    utils.RESPMSG_SUCCESS_INVOICEGET,
+			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_INVOICEGET),
+			"data":    &respList,
+		},
+	}
 }
 
 /**

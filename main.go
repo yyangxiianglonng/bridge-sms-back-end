@@ -156,7 +156,6 @@ func mvcHandle(app *iris.Application) {
 		sessManager.Start,
 	)
 	product.Handle(new(controller.ProductController))
-
 }
 
 /**
