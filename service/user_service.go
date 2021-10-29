@@ -20,6 +20,10 @@ type UserService interface {
 	SaveUser(user model.User) bool
 	//更新用户服务接口
 	UpdateUser(activeCode string, user model.User) bool
+	//修改用户密码接口
+	ResetPasswor(email string, user model.User) bool
+	//更新用户接口用于更新密码
+	UpdateUserRandNum(email string, user model.User) bool
 	//获取用户日增长统计数据
 	GetUserDailyStatisCount(datetime string) int64
 	//获取用户总数
@@ -93,10 +97,26 @@ func (us *userService) SaveUser(user model.User) bool {
 }
 
 /**
- *更新用户服务
+ *激活用户服务
  */
-func (us *userService) UpdateUser(activeCode string, user model.User) bool {
-	_, err := us.Engine.Where("active_code = ?", activeCode).Cols("is_active").Update(&user)
+func (us *userService) UpdateUser(email string, user model.User) bool {
+	_, err := us.Engine.Where("email = ?", email).Cols("is_active").Update(&user)
+	return err == nil
+}
+
+/**
+ *修改密码服务
+ */
+func (us *userService) ResetPasswor(email string, user model.User) bool {
+	_, err := us.Engine.Where("email = ?", email).Update(&user)
+	return err == nil
+}
+
+/**
+ *更新用户随机数用于修改密码
+ */
+func (us *userService) UpdateUserRandNum(email string, user model.User) bool {
+	_, err := us.Engine.Where("email = ?", email).Update(&user)
 	return err == nil
 }
 

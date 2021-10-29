@@ -1,13 +1,18 @@
 package controller
 
 import (
-	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/mvc"
-	"github.com/kataras/iris/v12/sessions"
+	"io/ioutil"
+	"main/config"
 	"main/model"
 	"main/service"
 	"main/utils"
+	"os"
+	"strconv"
 	"time"
+
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/mvc"
+	"github.com/kataras/iris/v12/sessions"
 )
 
 func (or *OrderController) BeforeActivation(ba mvc.BeforeActivation) {
@@ -15,6 +20,11 @@ func (or *OrderController) BeforeActivation(ba mvc.BeforeActivation) {
 	ba.Handle("GET", "/all/{project_code}", "GetAllByProjectCode")
 	//通过order_code获取对应的注文列表
 	ba.Handle("GET", "/one/{order_code}", "GetOneByOrderCode")
+	//生成注文书PDF文件
+	ba.Handle("GET", "/pdf/{order_code}", "DrawPdfByOrderCode")
+	//下载注文书PDF文件
+	ba.Handle("GET", "/download/{destination_name}", "PdfDownload")
+
 }
 
 type OrderController struct {
@@ -138,8 +148,10 @@ type AddOrderEntity struct {
 	Id                   int64  `json:"id"`
 	OrderCode            string `json:"order_code"`
 	EstimateCode         string `json:"estimate_code"`
+	EstimateName         string `json:"estimate_name"`
 	ProjectCode          string `json:"project_code"`
 	ProjectName          string `json:"project_name"`
+	EstimateOfOrder      string `json:"estimate_of_order"`
 	CustomerName         string `json:"customer_name"`
 	CustomerAddress      string `json:"customer_address"`
 	Work                 string `json:"work"`
@@ -196,8 +208,10 @@ func (or *OrderController) Post() mvc.Result {
 
 	orderInfo.OrderCode = orderEntity.OrderCode
 	orderInfo.EstimateCode = orderEntity.EstimateCode
+	orderInfo.EstimateName = orderEntity.EstimateName
 	orderInfo.ProjectCode = orderEntity.ProjectCode
 	orderInfo.ProjectName = orderEntity.ProjectName
+	orderInfo.EstimateOfOrder = orderEntity.EstimateOfOrder
 	orderInfo.CustomerName = orderEntity.CustomerName
 	orderInfo.CustomerAddress = orderEntity.CustomerAddress
 	orderInfo.Work = orderEntity.Work
@@ -274,8 +288,10 @@ func (or *OrderController) Put() mvc.Result {
 
 	orderInfo.OrderCode = orderEntity.OrderCode
 	orderInfo.EstimateCode = orderEntity.EstimateCode
+	orderInfo.EstimateName = orderEntity.EstimateName
 	orderInfo.ProjectCode = orderEntity.ProjectCode
 	orderInfo.ProjectName = orderEntity.ProjectName
+	orderInfo.EstimateOfOrder = orderEntity.EstimateOfOrder
 	orderInfo.CustomerName = orderEntity.CustomerName
 	orderInfo.CustomerAddress = orderEntity.CustomerAddress
 	orderInfo.Work = orderEntity.Work
@@ -310,5 +326,106 @@ func (or *OrderController) Put() mvc.Result {
 			"type":    utils.RESPMSG_SUCCESS_ORDERUPDATE,
 			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_ORDERUPDATE),
 		},
+	}
+}
+
+/**
+ * url: /v1/order/pdf/{order_code}
+ * type：GET
+ * descs：生成见注文书PDF功能
+ */
+func (or *OrderController) DrawPdfByOrderCode() mvc.Result {
+	const COMMENT = "method:Get url: /v1/order/pdf/{order_code} Controller:OrderController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := or.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
+	orderCode := or.Context.Params().Get("order_code")
+
+	now := time.Now().Format("2006-01-02")
+	_, err = os.Stat(config.InitConfig().FilePath + "/pdf/order/" + now)
+	if err != nil {
+		os.Mkdir(config.InitConfig().FilePath+"/pdf/order/"+now, os.ModePerm)
+	}
+
+	fileInfo, _ := ioutil.ReadDir(config.InitConfig().FilePath + "/pdf/order/" + now)
+
+	var files []string
+	for _, file := range fileInfo {
+		files = append(files, file.Name())
+	}
+	var fileName string
+	if len(files) < 10 {
+		fileName = time.Now().Format("20060102") + "0" + strconv.Itoa(len(files)+1)
+	} else {
+		fileName = time.Now().Format("20060102") + strconv.Itoa(len(files)+1)
+	}
+
+	var orderInfo model.Order
+	orderInfo.OrderPdfNum = fileName
+	isSuccess := or.OrderService.UpdateOrder(orderCode, orderInfo)
+	if !isSuccess {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ESTIMATEDETAILUPDATE,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEDETAILUPDATE),
+			},
+		}
+	}
+
+	order := or.OrderService.GetOrder(orderCode)
+	iris.New().Logger().Info(order)
+	if order == nil {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ESTIMATEGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEGET),
+			},
+		}
+	}
+
+	utils.NewOrderPdf(order)
+	//返回pdf文件
+	iris.New().Logger().Info(COMMENT + "End")
+	return mvc.Response{
+		Object: map[string]interface{}{
+			"status":   utils.RECODE_OK,
+			"type":     utils.RESPMSG_SUCCESS_ESTIMATEGET,
+			"message":  utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEGET),
+			"filename": fileName + ".pdf",
+		},
+	}
+}
+
+/**
+ * url: /v1/estimate/download/{destination_name}
+ * type：GET
+ * descs：下载见积书PDF功能
+ */
+func (or *OrderController) PdfDownload() {
+	const COMMENT = "method:Get url:/v1/order/download/{destination_name} Controller:OrderController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+	destinationName := or.Context.Params().Get("destination_name")
+	fileName := config.InitConfig().FilePath + "/pdf/order/" + time.Now().Format("2006-01-02") + "/" + destinationName
+
+	err := or.Context.SendFile(fileName, destinationName)
+	if err != nil {
+		iris.New().Logger().Error(err.Error())
+		panic(err.Error())
 	}
 }

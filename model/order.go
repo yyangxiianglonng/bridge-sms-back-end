@@ -9,8 +9,10 @@ type Order struct {
 	Id                   int64     `xorm:"pk unique autoincr" json:"id"`
 	OrderCode            string    `json:"order_code"`
 	EstimateCode         string    `json:"estimate_code"`
+	EstimateName         string    `json:"estimate_name"`
 	ProjectCode          string    `json:"project_code"`
 	ProjectName          string    `json:"project_name"`
+	EstimateOfOrder      string    `json:"estimate_of_order"`
 	CustomerName         string    `json:"customer_name"`
 	CustomerAddress      string    `json:"customer_address"`
 	Work                 string    `json:"work"`
@@ -24,6 +26,7 @@ type Order struct {
 	AcceptanceConditions string    `json:"acceptance_conditions"`
 	Other                string    `json:"other"`
 	Note                 string    `json:"note"`
+	OrderPdfNum          string    `json:"order_pdf_num"`
 	CreatedAt            time.Time `xorm:"created" json:"created_at"`
 	CreatedBy            string    `json:"created_by"`
 	ModifiedAt           time.Time `xorm:"updated" json:"modified_at"`
@@ -41,8 +44,10 @@ func (order *Order) OrderToRespDesc() (respInfo interface{}) {
 		"id":                    order.Id,
 		"order_code":            order.OrderCode,
 		"estimate_code":         order.EstimateCode,
+		"estimate_name":         order.EstimateName,
 		"project_code":          order.ProjectCode,
 		"project_name":          order.ProjectName,
+		"estimate_of_order":     order.EstimateOfOrder,
 		"customer_name":         order.CustomerName,
 		"customer_address":      order.CustomerAddress,
 		"work":                  order.Work,
@@ -56,6 +61,7 @@ func (order *Order) OrderToRespDesc() (respInfo interface{}) {
 		"acceptance_conditions": order.AcceptanceConditions,
 		"other":                 order.Other,
 		"note":                  order.Note,
+		"order_pdf_num":         order.OrderPdfNum,
 		"created_at":            order.CreatedAt,
 		"created_by":            order.CreatedBy,
 		"modified_at":           order.ModifiedAt,

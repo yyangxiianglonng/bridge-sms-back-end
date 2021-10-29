@@ -2,21 +2,22 @@ package utils
 
 import (
 	"fmt"
-	"io/ioutil"
+	"main/config"
 	"main/model"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/kataras/iris/v12"
 	"github.com/signintech/gopdf"
 )
 
-const FONTPATH = "/Users/yangxianglong/go/Vue_Iris/back-end/static/font/"
-const IMGPATH = "/Users/yangxianglong/go/Vue_Iris/back-end/static/img/"
-const FILEPATH = "/Users/yangxianglong/go/Vue_Iris/back-end/static/file/pdf/estimate/"
+// const FONTPATH = "/Users/yangxianglong/go/Vue_Iris/back-end/static/font/"
+// const IMGPATH = "/Users/yangxianglong/go/Vue_Iris/back-end/static/img/"
 
-func NewPdf(estimate []*model.Estimate, estimateDetail []*model.EstimateDetail) {
+// const FILEPATH = "/Users/yangxianglong/go/Vue_Iris/back-end/static/file/pdf/estimate/"
+
+func NewEstimatePdf(estimate []*model.Estimate, estimateDetail []*model.EstimateDetail) {
 	//获取见积头数据
 	var estimateInfo model.Estimate
 	for _, item := range estimate {
@@ -31,7 +32,6 @@ func NewPdf(estimate []*model.Estimate, estimateDetail []*model.EstimateDetail) 
 		} else {
 			estimateDetailInfoRunning = append(estimateDetailInfoRunning, *item)
 		}
-
 	}
 
 	pdf := gopdf.GoPdf{}
@@ -39,32 +39,39 @@ func NewPdf(estimate []*model.Estimate, estimateDetail []*model.EstimateDetail) 
 	pdf.Start(gopdf.Config{PageSize: gopdf.Rect{W: 595.28, H: 841.89}}) //595.28, 841.89 = A4
 	pdf.AddPage()
 	pdf.SetFillColor(0, 0, 0)
-	Title(&pdf, estimateInfo)
+	TitleEstimate(&pdf, estimateInfo)
 	Customer(&pdf, estimateInfo)
 	// drawGrid(&pdf)
-	Company(&pdf, estimateInfo)
+	CompanyEstimate(&pdf, estimateInfo)
 	EstimateName(&pdf, estimateInfo)
 	BodyTitle(&pdf)
 	Work(&pdf, estimateInfo)
 	Deliverables(&pdf, estimateInfo)
 	WorkSpace(&pdf, estimateInfo)
 	EstimateDetail(&pdf, estimateInfo, estimateDetailInfoInitial, estimateDetailInfoRunning)
-
 	now := time.Now().Format("2006-01-02")
-	_, err := os.Stat(FILEPATH + now)
-	if err != nil {
-		os.Mkdir(FILEPATH+now, os.ModePerm)
+	pdf.WritePdf(config.InitConfig().FilePath + "/pdf/estimate/" + now + "/" + estimateInfo.EstimatePdfNum + ".pdf")
+}
+
+func NewOrderPdf(order []*model.Order) {
+
+	//获取见积头数据
+	var orderInfo model.Order
+	for _, item := range order {
+		orderInfo = *item
 	}
-
-	fileInfo, _ := ioutil.ReadDir(FILEPATH + now)
-
-	var files []string
-	for _, file := range fileInfo {
-		files = append(files, file.Name())
-	}
-
-	// PaymentConditions(&pdf, estimateInfo)
-	pdf.WritePdf(FILEPATH + now + "/" + estimateInfo.EstimateCode + ".pdf")
+	iris.New().Logger().Info(orderInfo)
+	pdf := gopdf.GoPdf{}
+	// pdf.Start(gopdf.Config{PageSize: gopdf.Rect{W: 850.32, H: 1203.12}}) //595.28, 841.89 = A4
+	pdf.Start(gopdf.Config{PageSize: gopdf.Rect{W: 595.28, H: 841.89}}) //595.28, 841.89 = A4
+	pdf.AddPage()
+	pdf.SetFillColor(0, 0, 0)
+	drawGrid(&pdf)
+	TitleOrder(&pdf, orderInfo)
+	CompanyOrder(&pdf, orderInfo)
+	BodyOrder(&pdf, orderInfo)
+	now := time.Now().Format("2006-01-02")
+	pdf.WritePdf(config.InitConfig().FilePath + "/pdf/order/" + now + "/" + orderInfo.OrderPdfNum + ".pdf")
 }
 
 /*
@@ -79,7 +86,7 @@ type Header struct {
 	h  float64
 }
 
-func Title(pdf *gopdf.GoPdf, info model.Estimate) {
+func TitleEstimate(pdf *gopdf.GoPdf, info model.Estimate) {
 	//外边框
 	t1 := Header{
 		x1: 192,
@@ -94,7 +101,7 @@ func Title(pdf *gopdf.GoPdf, info model.Estimate) {
 		w:  t1.w - 5,
 		h:  t1.h - 5,
 	}
-	err := pdf.AddTTFFont("mincho", FONTPATH+"ShipporiAntiqueB1-Regular.ttf")
+	err := pdf.AddTTFFont("mincho", config.InitConfig().Static+"/font/"+"ShipporiAntiqueB1-Regular.ttf")
 	if err != nil {
 		panic(err)
 	}
@@ -116,20 +123,61 @@ func Title(pdf *gopdf.GoPdf, info model.Estimate) {
 	pdf.Line(t2.x1, t2.y1+t2.h, t2.x1+t2.w, t2.y1+t2.h)
 	pdf.Line(t2.x1, t2.y1, t2.x1, t2.y1+t2.h)
 
-	err = pdf.AddTTFFont("simfang", FONTPATH+"/simfang.ttf")
+	err = pdf.AddTTFFont("simfang", config.InitConfig().Static+"/font/"+"/simfang.ttf")
 	if err != nil {
 		panic(err)
 	}
-	pdf.SetFont("simfang", "", 14) //フォント、文字サイズ指定
-	pdf.SetX(600)                  //x座標指定
-	pdf.SetY(210)                  //y座標指定
-	pdf.Cell(nil, "見積No.")         //見積No.
-	pdf.SetX(655)
-	pdf.SetY(210)
-	pdf.Cell(nil, info.EstimateCode) //Esh210831145627
-	pdf.SetX(655)
-	pdf.SetY(225)
-	pdf.Cell(nil, info.CreatedAt.Format("02/01/2006")) //16/09/2021
+	pdf.SetFont("simfang", "", 12) //フォント、文字サイズ指定
+	pdf.SetX(415)                  //x座標指定
+	pdf.SetY(90)                   //y座標指定
+	pdf.Cell(nil, "見積書No.")        //見積No.
+	pdf.SetX(467)
+	pdf.SetY(90)
+	pdf.Cell(nil, info.EstimatePdfNum) //Esh210831145627
+	pdf.SetX(447)
+	pdf.SetY(105)
+	pdf.Cell(nil, info.CreatedAt.Format("2006年01月02日")) //16/09/2021
+}
+
+func TitleOrder(pdf *gopdf.GoPdf, info model.Order) {
+	err := pdf.AddTTFFont("mincho", config.InitConfig().Static+"/font/"+"ShipporiAntiqueB1-Regular.ttf")
+	if err != nil {
+		panic(err)
+	}
+	pdf.SetFont("mincho", "", 26) //フォント、文字サイズ指定
+	pdf.SetX(212)                 //x座標指定
+	pdf.SetY(53)                  //y座標指定
+	pdf.Cell(nil, "注　文　請　書")      //Rect, String
+	pdf.SetLineWidth(0.7)
+
+	err = pdf.AddTTFFont("simfang", config.InitConfig().Static+"/font/"+"/simfang.ttf")
+	if err != nil {
+		panic(err)
+	}
+	pdf.SetFont("simfang", "", 12) //フォント、文字サイズ指定
+	pdf.SetX(405)                  //x座標指定
+	pdf.SetY(90)                   //y座標指定
+	pdf.Cell(nil, "注文請書No.")       //注文請書No.
+	pdf.SetX(469)
+	pdf.SetY(90)
+	pdf.Cell(nil, info.OrderPdfNum) //Esh210831145627
+	pdf.SetX(447)
+	pdf.SetY(105)
+	pdf.Cell(nil, info.CreatedAt.Format("2006年01月02日")) //16/09/2021
+
+	cu := Header{
+		x1: 70,
+		y1: 120,
+	}
+	//①得意先名〇〇
+	pdf.SetFont("mincho", "", 14) //フォント、文字サイズ指定
+	pdf.SetX(cu.x1)               //x座標指定
+	pdf.SetY(cu.y1)               //y座標指定
+	pdf.Cell(nil, info.CustomerName)
+	//〇〇御中
+	pdf.SetX(cu.x1 + 10 + float64(len(info.CustomerName))*5) //x座標指定
+	pdf.SetY(cu.y1)                                          //y座標指定
+	pdf.Cell(nil, "御中")
 }
 
 /*
@@ -157,7 +205,7 @@ func Customer(pdf *gopdf.GoPdf, info model.Estimate) {
 
 	//②挨拶
 	//err = pdf.AddTTFFont("simfang", "./font/simfang.ttf")
-	err := pdf.AddTTFFont("ipaexm", FONTPATH+"ipaexm.ttf")
+	err := pdf.AddTTFFont("ipaexm", config.InitConfig().Static+"/font/"+"ipaexm.ttf")
 	if err != nil {
 		panic(err)
 	}
@@ -171,20 +219,20 @@ func Customer(pdf *gopdf.GoPdf, info model.Estimate) {
 	pdf.Cell(nil, "何卒ご用命のほど、よろしくお願い申し上げます。")
 }
 
-func Company(pdf *gopdf.GoPdf, info model.Estimate) {
+func CompanyEstimate(pdf *gopdf.GoPdf, info model.Estimate) {
 
 	co := Header{
 		x1: 360,
 		y1: 149,
 	}
 
-	err := pdf.AddTTFFont("simfang", FONTPATH+"simfang.ttf")
+	err := pdf.AddTTFFont("simfang", config.InitConfig().Static+"/font/"+"simfang.ttf")
 	if err != nil {
 		panic(err)
 	}
 	pdf.SetFont("simfang", "", 9) //フォント、文字サイズ指定
 
-	pdf.Image(IMGPATH+"bridge_logo.png", co.x1+10, co.y1-20, nil)
+	pdf.Image(config.InitConfig().Static+"/img/"+"bridge_logo.png", co.x1+10, co.y1-20, nil)
 
 	pdf.SetX(co.x1)
 	pdf.SetY(co.y1)
@@ -201,16 +249,57 @@ func Company(pdf *gopdf.GoPdf, info model.Estimate) {
 
 }
 
+func CompanyOrder(pdf *gopdf.GoPdf, info model.Order) {
+
+	co := Header{
+		x1: 300,
+		y1: 140,
+	}
+
+	err := pdf.AddTTFFont("simfang", config.InitConfig().Static+"/font/"+"simfang.ttf")
+	if err != nil {
+		panic(err)
+	}
+	pdf.SetFont("simfang", "", 12) //フォント、文字サイズ指定
+
+	pdf.Image(config.InitConfig().Static+"/img/"+"stamp.png", co.x1+140, co.y1, nil)
+
+	pdf.SetX(co.x1)
+	pdf.SetY(co.y1)
+	pdf.Cell(nil, "（住所）東京都中央区八丁堀4丁目11-10") //地址
+	pdf.SetX(co.x1 + 140)
+	pdf.SetY(co.y1 + 15)
+	pdf.Cell(nil, "第2SSビル 1F") //地址
+
+	pdf.SetX(co.x1)
+	pdf.SetY(co.y1 + 50)
+	pdf.Cell(nil, "（社名）株式会社ブリッジ") //邮编
+
+	err = pdf.AddTTFFont("ipaexm", config.InitConfig().Static+"/font/"+"ipaexm.ttf")
+	if err != nil {
+		panic(err)
+	}
+
+	pdf.SetFont("ipaexm", "", 12) //フォント、文字サイズ指定
+	pdf.SetX(co.x1 - 220)
+	pdf.SetY(co.y1 + 85)
+	pdf.Cell(nil, "件名（業務名）："+info.EstimateName)
+
+	pdf.SetX(co.x1 - 220)
+	pdf.SetY(co.y1 + 120)
+	pdf.Cell(nil, "標題の件につき"+"　"+info.EstimateOfOrder)
+}
+
 func BodyTitle(pdf *gopdf.GoPdf) {
 	bo := Header{
 		x1: 85,
 		y1: 220,
 	}
-	err := pdf.AddTTFFont("PingBold", FONTPATH+"PingBold.ttf")
+	err := pdf.AddTTFFont("PingBold", config.InitConfig().Static+"/font/"+"PingBold.ttf")
 	if err != nil {
 		panic(err)
 	}
-	pdf.SetFont("PingBold", "", 11) //フォント、文字サイズ指定
+	pdf.SetFont("PingBold", "", 10) //フォント、文字サイズ指定
 
 	pdf.SetX(bo.x1)
 	pdf.SetY(bo.y1)
@@ -229,13 +318,155 @@ func BodyTitle(pdf *gopdf.GoPdf) {
 	pdf.Cell(nil, "５．お見積金額")
 }
 
+func BodyOrder(pdf *gopdf.GoPdf, info model.Order) {
+	bo := Header{
+		x1: 70,
+		y1: 300,
+		w:  465,
+		h:  80,
+	}
+
+	err := pdf.AddTTFFont("ipaexm", config.InitConfig().Static+"/font/"+"ipaexm.ttf")
+	if err != nil {
+		panic(err)
+	}
+	pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
+	pdf.SetX(bo.x1 + 200)
+	pdf.SetY(bo.y1 - 11) //365
+	pdf.Cell(nil, "記")
+
+	//追加背景颜色
+	// pdf.SetFillColor(255, 255, 153)
+	// pdf.RectFromUpperLeftWithStyle(bo.x1, bo.y1, bo.w, bo.h, "FD")
+	// pdf.SetFillColor(255, 255, 153)
+
+	pdf.SetLineWidth(1.5)
+	pdf.Line(bo.x1, bo.y1, bo.x1, bo.y1+bo.h*5)           //左
+	pdf.Line(178, bo.y1, 178, bo.y1+bo.h*5)               //左2
+	pdf.Line(180, bo.y1, 180, bo.y1+bo.h*5)               //左2
+	pdf.Line(bo.x1+bo.w, bo.y1, bo.x1+bo.w, bo.y1+bo.h*5) //右
+
+	pdf.Line(bo.x1, bo.y1+100, bo.x1+bo.w, bo.y1+100)
+	pdf.Line(bo.x1, bo.y1+220, bo.x1+bo.w, bo.y1+220)
+	pdf.Line(bo.x1, bo.y1+300, bo.x1+bo.w, bo.y1+300)
+	pdf.Line(bo.x1, bo.y1+340, bo.x1+bo.w, bo.y1+340)
+
+	for num := 0.0; num <= 5; num++ {
+		pdf.Line(bo.x1, bo.y1+bo.h*num, bo.x1+bo.w, bo.y1+bo.h*num)
+	}
+
+	err = pdf.AddTTFFont("ipaexm", config.InitConfig().Static+"/font/"+"ipaexm.ttf")
+	if err != nil {
+		panic(err)
+	}
+
+	pdf.SetFont("ipaexm", "", 12) //フォント、文字サイズ指定
+	pdf.SetX(bo.x1 + 10)
+	pdf.SetY(bo.y1 + 1)
+	pdf.Cell(nil, "作　業　内　容")
+
+	work_str := strings.Split(info.Work, "\n")
+	for index, str := range work_str {
+		pdf.SetX(bo.x1 + 111)
+		pdf.SetY(bo.y1 + 1 + float64(index*12))
+		pdf.Cell(nil, str)
+	}
+
+	pdf.SetX(bo.x1 + 4)
+	pdf.SetY(bo.y1 + 81)
+	pdf.Cell(nil, "作業期間")
+	pdf.SetFont("ipaexm", "", 8) //フォント、文字サイズ指定
+	pdf.SetX(bo.x1 + 54)
+	pdf.SetY(bo.y1 + 85)
+	pdf.Cell(nil, "または")
+	pdf.SetFont("ipaexm", "", 12) //フォント、文字サイズ指定
+	pdf.SetX(bo.x1 + 79)
+	pdf.SetY(bo.y1 + 81)
+	pdf.Cell(nil, "納期")
+
+	pdf.SetX(bo.x1 + 111)
+	pdf.SetY(bo.y1 + 81)
+	pdf.Cell(nil, info.WorkTime)
+
+	pdf.SetX(bo.x1 + 21)
+	pdf.SetY(bo.y1 + 101)
+	pdf.Cell(nil, "就任担当者")
+
+	personnel_str := strings.Split(info.Personnel1, "\n")
+	for index, str := range personnel_str {
+		pdf.SetX(bo.x1 + 111)
+		pdf.SetY(bo.y1 + 101 + float64(index*30))
+		pdf.Cell(nil, str)
+	}
+
+	pdf.SetX(bo.x1 + 21)
+	pdf.SetY(bo.y1 + 161)
+	pdf.Cell(nil, "納　入　物")
+
+	pdf.SetX(bo.x1 + 111)
+	pdf.SetY(bo.y1 + 161)
+	pdf.Cell(nil, info.WorkTime)
+
+	pdf.SetX(bo.x1 + 2)
+	pdf.SetY(bo.y1 + 221)
+	pdf.Cell(nil, "提供場所(納入場所)")
+
+	pdf.SetX(bo.x1 + 111)
+	pdf.SetY(bo.y1 + 221)
+	pdf.Cell(nil, info.DeliverableSpace)
+
+	pdf.SetX(bo.x1 + 21)
+	pdf.SetY(bo.y1 + 241)
+	pdf.Cell(nil, "委　託　料")
+
+	pdf.SetX(bo.x1 + 111)
+	pdf.SetY(bo.y1 + 241)
+	pdf.Cell(nil, info.Commission)
+
+	pdf.SetX(bo.x1 + 10)
+	pdf.SetY(bo.y1 + 301)
+	pdf.Cell(nil, "支　払　期　日")
+
+	pdf.SetX(bo.x1 + 111)
+	pdf.SetY(bo.y1 + 301)
+	pdf.Cell(nil, info.PaymentDate)
+
+	pdf.SetX(bo.x1 + 10)
+	pdf.SetY(bo.y1 + 321)
+	pdf.Cell(nil, "検　収　条　件")
+
+	pdf.SetX(bo.x1 + 111)
+	pdf.SetY(bo.y1 + 321)
+	pdf.Cell(nil, info.AcceptanceConditions)
+
+	pdf.SetX(bo.x1 + 21)
+	pdf.SetY(bo.y1 + 341)
+	pdf.Cell(nil, "そ　の　他")
+
+	pdf.SetX(bo.x1 + 111)
+	pdf.SetY(bo.y1 + 341)
+	pdf.Cell(nil, info.Other)
+
+	pdf.SetX(bo.x1 + 10)
+	pdf.SetY(bo.y1 + 420)
+	pdf.Cell(nil, "※注：")
+
+	note_str := strings.Split(info.Note, "\n")
+	for index, str := range note_str {
+		pdf.SetX(bo.x1 + 45)
+		pdf.SetY(bo.y1 + 420 + float64(index*12))
+		pdf.Cell(nil, str)
+	}
+
+}
+
 //见积对象案件名
 func EstimateName(pdf *gopdf.GoPdf, info model.Estimate) {
 	es := Header{
 		x1: 100,
 		y1: 235,
 	}
-	err := pdf.AddTTFFont("ipaexm", FONTPATH+"ipaexm.ttf")
+	err := pdf.AddTTFFont("ipaexm", config.InitConfig().Static+"/font/"+"ipaexm.ttf")
 	if err != nil {
 		panic(err)
 	}
@@ -252,7 +483,7 @@ func Work(pdf *gopdf.GoPdf, info model.Estimate) {
 		x1: 100,
 		y1: 280,
 	}
-	err := pdf.AddTTFFont("ipaexm", FONTPATH+"ipaexm.ttf")
+	err := pdf.AddTTFFont("ipaexm", config.InitConfig().Static+"/font/"+"ipaexm.ttf")
 	if err != nil {
 		panic(err)
 	}
@@ -293,7 +524,7 @@ func Deliverables(pdf *gopdf.GoPdf, info model.Estimate) {
 		h:  11,
 	}
 
-	err := pdf.AddTTFFont("ipaexm", FONTPATH+"ipaexm.ttf")
+	err := pdf.AddTTFFont("ipaexm", config.InitConfig().Static+"/font/"+"ipaexm.ttf")
 	if err != nil {
 		panic(err)
 	}
@@ -366,7 +597,7 @@ func WorkSpace(pdf *gopdf.GoPdf, info model.Estimate) {
 		x1: 100,
 		y1: 435,
 	}
-	err := pdf.AddTTFFont("ipaexm", FONTPATH+"ipaexm.ttf")
+	err := pdf.AddTTFFont("ipaexm", config.InitConfig().Static+"/font/"+"ipaexm.ttf")
 	if err != nil {
 		panic(err)
 	}
@@ -385,11 +616,11 @@ func EstimateDetail(pdf *gopdf.GoPdf, info model.Estimate, infoInitial []model.E
 		h:  11,
 	}
 	so := 5.6
-	err := pdf.AddTTFFont("ipaexm", FONTPATH+"ipaexm.ttf")
+	err := pdf.AddTTFFont("ipaexm", config.InitConfig().Static+"/font/"+"ipaexm.ttf")
 	if err != nil {
 		panic(err)
 	}
-	err = pdf.AddTTFFont("simfang", FONTPATH+"simfang.ttf")
+	err = pdf.AddTTFFont("simfang", config.InitConfig().Static+"/font/"+"simfang.ttf")
 	if err != nil {
 		panic(err)
 	}
@@ -683,7 +914,7 @@ func EstimateDetail(pdf *gopdf.GoPdf, info model.Estimate, infoInitial []model.E
 			pdf.SetY(ed.y1)
 			pdf.Cell(nil, "【補　足】")
 			for index, str := range arr_str {
-				pdf.SetFont("simfang", "", 10) //フォント、文字サイズ指定
+				pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
 				pdf.SetX(ed.x1 + 30)
 				pdf.SetY(ed.y1 + 10 + float64(index*10))
 				pdf.Cell(nil, str)
@@ -700,7 +931,7 @@ func EstimateDetail(pdf *gopdf.GoPdf, info model.Estimate, infoInitial []model.E
 			pdf.Cell(nil, "5.3　その他費用")
 			arr_str = strings.Split(info.Other, "\n")
 			for index, str := range arr_str {
-				pdf.SetFont("simfang", "", 10) //フォント、文字サイズ指定
+				pdf.SetFont("ipaexm", "", 10) //フォント、文字サイズ指定
 				pdf.SetX(ed.x1 + 30)
 				pdf.SetY(ed.y1 + 10 + float64(index*10))
 				pdf.Cell(nil, str)
@@ -1054,11 +1285,11 @@ func EstimateDetail(pdf *gopdf.GoPdf, info model.Estimate, infoInitial []model.E
 
 //支付条件
 func PaymentConditions(pdf *gopdf.GoPdf, lineY1 float64, info model.Estimate) {
-	err := pdf.AddTTFFont("PingBold", FONTPATH+"PingBold.ttf")
+	err := pdf.AddTTFFont("PingBold", config.InitConfig().Static+"/font/"+"PingBold.ttf")
 	if err != nil {
 		panic(err)
 	}
-	err = pdf.AddTTFFont("ipaexm", FONTPATH+"ipaexm.ttf")
+	err = pdf.AddTTFFont("ipaexm", config.InitConfig().Static+"/font/"+"ipaexm.ttf")
 	if err != nil {
 		panic(err)
 	}
@@ -1140,7 +1371,7 @@ func convertStr(str string) string {
 
 func drawGrid(pdf *gopdf.GoPdf) {
 
-	err := pdf.AddTTFFont("ping", FONTPATH+"ping.ttf")
+	err := pdf.AddTTFFont("ping", config.InitConfig().Static+"/font/"+"ping.ttf")
 	if err != nil {
 		panic(err)
 	}

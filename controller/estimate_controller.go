@@ -1,16 +1,21 @@
 package controller
 
 import (
+	"io/ioutil"
 	"main/config"
 	"main/model"
 	"main/service"
 	"main/utils"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"github.com/kataras/iris/v12/sessions"
 )
+
+// const FILEPATH = "/Users/yangxianglong/go/Vue_Iris/back-end/static/file/pdf/estimate/"
 
 type EstimateController struct {
 	Context         iris.Context
@@ -60,6 +65,66 @@ func (es *EstimateController) Get() mvc.Result {
 	}
 
 	estimate := es.EstimateService.GetEstimateAll()
+	if estimate == nil {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ESTIMATEGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEGET),
+			},
+		}
+	}
+
+	//将查询到的见积数据进行转换成前端需要的内容
+	var respList []interface{}
+	for _, item := range estimate {
+		respList = append(respList, item.EstimateToRespDesc())
+	}
+
+	//返回见积列表
+	iris.New().Logger().Info(COMMENT + "End")
+	return mvc.Response{
+		Object: map[string]interface{}{
+			"status":  utils.RECODE_OK,
+			"type":    utils.RESPMSG_SUCCESS_ESTIMATEGET,
+			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEGET),
+			"data":    &respList,
+		},
+	}
+}
+
+/**
+ * url: /v1/estimate/search
+ * type：GET
+ * descs：获取所有见积功能
+ */
+func (es *EstimateController) GetSearch() mvc.Result {
+	const COMMENT = "method:Get url:/v1/estimate/search Controller:EstimateController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := es.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
+	params := es.Context.URLParams()
+	// iris.New().Logger().Info(projectCode)
+	var estimateInfo model.Estimate
+	estimateInfo.ProjectCode = params["project_code"]
+	estimateInfo.ProjectName = params["project_name"]
+	// estimateInfo.CustomerCode = params["customer_code"]
+	estimateInfo.CustomerName = params["customer_name"]
+
+	estimate := es.EstimateService.SearchEstimates(estimateInfo)
 	if estimate == nil {
 		iris.New().Logger().Error(COMMENT + "ERR")
 		return mvc.Response{
@@ -666,6 +731,40 @@ func (es *EstimateController) DrawPdfByEstimateCode() mvc.Result {
 	}
 
 	estimateCode := es.Context.Params().Get("estimate_code")
+
+	now := time.Now().Format("2006-01-02")
+	_, err = os.Stat(config.InitConfig().FilePath + "/pdf/estimate/" + now)
+	if err != nil {
+		os.Mkdir(config.InitConfig().FilePath+"/pdf/estimate/"+now, os.ModePerm)
+	}
+
+	fileInfo, _ := ioutil.ReadDir(config.InitConfig().FilePath + "/pdf/estimate/" + now)
+
+	var files []string
+	for _, file := range fileInfo {
+		files = append(files, file.Name())
+	}
+	var fileName string
+	if len(files) < 10 {
+		fileName = time.Now().Format("20060102") + "0" + strconv.Itoa(len(files)+1)
+	} else {
+		fileName = time.Now().Format("20060102") + strconv.Itoa(len(files)+1)
+	}
+
+	var estimateInfo model.Estimate
+	estimateInfo.EstimatePdfNum = fileName
+	isSuccess := es.EstimateService.UpdateEstimate(estimateCode, estimateInfo)
+	if !isSuccess {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ESTIMATEDETAILUPDATE,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEDETAILUPDATE),
+			},
+		}
+	}
+
 	estimate := es.EstimateService.GetEstimate(estimateCode)
 	estimateDetail := es.EstimateService.GetEstimateDetails(estimateCode)
 
@@ -697,7 +796,7 @@ func (es *EstimateController) DrawPdfByEstimateCode() mvc.Result {
 	// 	respList = append(respList, item.EstimateToRespDesc())
 	// }
 
-	utils.NewPdf(estimate, estimateDetail)
+	utils.NewEstimatePdf(estimate, estimateDetail)
 	//返回pdf文件
 	iris.New().Logger().Info(COMMENT + "End")
 	return mvc.Response{
@@ -705,7 +804,7 @@ func (es *EstimateController) DrawPdfByEstimateCode() mvc.Result {
 			"status":   utils.RECODE_OK,
 			"type":     utils.RESPMSG_SUCCESS_ESTIMATEGET,
 			"message":  utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEGET),
-			"filename": estimateCode + ".pdf",
+			"filename": fileName + ".pdf",
 		},
 	}
 }

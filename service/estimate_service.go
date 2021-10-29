@@ -15,6 +15,7 @@ type EstimateService interface {
 	GetEstimateAll() []*model.Estimate
 	GetEstimates(project_code string) []*model.Estimate
 	GetEstimate(estimate_code string) []*model.Estimate
+	SearchEstimates(saerchInfo model.Estimate) []*model.Estimate
 	SaveEstimate(estimate model.Estimate) bool
 	UpdateEstimate(estimateCode string, estimate model.Estimate) bool
 
@@ -70,6 +71,19 @@ func (es *estimateService) GetEstimates(projectCode string) (estimateList []*mod
  */
 func (es *estimateService) GetEstimate(estimateCode string) (estimate []*model.Estimate) {
 	err := es.Engine.Where("is_delete = ?", 0).And("estimate_code = ?", estimateCode).Find(&estimate)
+
+	if err != nil {
+		iris.New().Logger().Error(err.Error())
+		panic(err.Error())
+	}
+	return
+}
+
+/**
+ * 检索见积数据
+ */
+func (es *estimateService) SearchEstimates(searchInfo model.Estimate) (estimate []*model.Estimate) {
+	err := es.Engine.Where("is_delete = ?", 0).And("estimate_code = ?", 0).Find(&estimate, searchInfo)
 
 	if err != nil {
 		iris.New().Logger().Error(err.Error())

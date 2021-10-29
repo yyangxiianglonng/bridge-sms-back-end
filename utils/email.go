@@ -19,14 +19,25 @@ type EmailParam struct {
 	Toers string
 	// CCers 抄送者邮件，如有多个，则以英文逗号(“,”)隔开，可以为空
 	CCers string
+	//邮件标题
+	Subject string
 	//用户识别CD(uuid)
 	ActiveCode string
+	//随机字符串
+	RandNum string
 	//邮件主体
 	Message *gomail.Message
 }
 
-func InitEmail(ep *EmailParam) {
+func SentEmail(ep *EmailParam) {
 	toers := []string{}
+	ccers := []string{}
+
+	ep.Message = gomail.NewMessage()
+
+	if len(ep.Toers) == 0 {
+		return
+	}
 
 	ep.Message = gomail.NewMessage()
 
@@ -44,23 +55,20 @@ func InitEmail(ep *EmailParam) {
 	//抄送列表
 	if len(ep.CCers) != 0 {
 		for _, tmp := range strings.Split(ep.CCers, ",") {
-			toers = append(toers, strings.TrimSpace(tmp))
+			ccers = append(ccers, strings.TrimSpace(tmp))
 		}
 		ep.Message.SetHeader("Cc", toers...)
 	}
 
 	// 发件人
 	// 第三个参数为发件人别名，如"李大锤"，可以为空（此时则为邮箱名称）
-	ep.Message.SetAddressHeader("From", ep.FromEmail, "")
+	ep.Message.SetAddressHeader("From", ep.FromEmail, "ブリッジシステム")
 
 	// 主题
-	ep.Message.SetHeader("Subject", "From Bridge System")
+	ep.Message.SetHeader("Subject", ep.Subject)
 	//str := fmt.Formatter()
 	// 正文
-	message :=
-		"<p>ご本人様確認のため、<a href=\"http://" + "192.168.3.39" + "/#/Active" + "?active_code=" + ep.ActiveCode + "\">ここ</a>をクリックし</p>" +
-			"<p>アカウントの認証を完了させて下さい。</p>" +
-			"By BRS セキュリティサービス</p>"
+	message := "BRSコード：" + ep.RandNum
 
 	ep.Message.SetBody("text/html", message)
 
@@ -70,5 +78,4 @@ func InitEmail(ep *EmailParam) {
 	if err != nil {
 		panic(err)
 	}
-
 }

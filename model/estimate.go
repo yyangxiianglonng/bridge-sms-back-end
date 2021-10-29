@@ -39,6 +39,7 @@ type Estimate struct {
 	Remarks           string    `json:"remarks"`
 	PaymentConditions string    `json:"payment_conditions"`
 	Other             string    `json:"other"`
+	EstimatePdfNum    string    `json:"estimate_pdf_num"`
 	CreatedAt         time.Time `xorm:"created" json:"created_at"`
 	CreatedBy         string    `json:"created_by"`
 	ModifiedAt        time.Time `xorm:"updated" json:"modified_at"`
@@ -108,6 +109,7 @@ func (estimate *Estimate) EstimateToRespDesc() (respInfo interface{}) {
 		"remarks":             estimate.Remarks,
 		"payment_conditions":  estimate.PaymentConditions,
 		"other":               estimate.Other,
+		"estimate_pdf_num":    estimate.EstimatePdfNum,
 		"created_at":          estimate.CreatedAt,
 		"created_by":          estimate.CreatedBy,
 		"modified_at":         estimate.ModifiedAt,

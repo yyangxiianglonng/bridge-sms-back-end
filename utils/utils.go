@@ -1,9 +1,11 @@
 package utils
 
 import (
-	"golang.org/x/crypto/bcrypt"
 	"log"
+	"math/rand"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 /**
@@ -32,4 +34,14 @@ func ComparePasswords(hashedPwd string, plainPwd []byte) bool {
 		return false
 	}
 	return true
+}
+
+func RandSeq() string {
+	//letters := []rune("abcdefghijklmnopqrstuvwxyz")
+	letters := []rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+	b := make([]rune, 6)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
 }

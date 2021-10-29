@@ -39,11 +39,11 @@ func newApp() (app *iris.Application) {
 	app.HandleDir("/static", config.InitConfig().Static+"/static")
 	//app.HandleDir("/static", "C:/inetpub/bridgesys/dist/static")
 
-	app.HandleDir("/download", "./static/file/pdf", iris.DirOptions{
-		IndexName: "/見積書.pdf",
-		Gzip:      false,
-		ShowList:  false,
-	})
+	// app.HandleDir("/download", "./static/file/pdf", iris.DirOptions{
+	// 	IndexName: "/見積書.pdf",
+	// 	Gzip:      false,
+	// 	ShowList:  false,
+	// })
 
 	//注册视图文件
 	app.RegisterView(iris.HTML(config.InitConfig().Static, ".html"))

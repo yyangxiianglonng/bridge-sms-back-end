@@ -15,6 +15,7 @@ type User struct {
 	PassWord   string    `json:"pass_word"`             //用户的账户密码
 	IsActive   bool      `json:"is_active"`             //用户是否激活
 	ActiveCode string    `json:"active_code"`
+	RandNum    string    `json:"rand_num"`
 	CreatedAt  time.Time `xorm:"created" json:"created_at"`
 	CreatedBy  string    `json:"created_by"`
 	ModifiedAt time.Time `xorm:"updated" json:"modified_at"`
@@ -35,6 +36,7 @@ func (user *User) UserToRespDesc() interface{} {
 		"pass_word":   user.PassWord,
 		"is_active":   user.IsActive,
 		"active_code": user.ActiveCode,
+		"rand_num":    user.RandNum,
 		"created_at":  user.CreatedAt,
 		"created_by":  user.CreatedBy,
 		"modified_at": user.ModifiedAt,
