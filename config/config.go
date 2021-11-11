@@ -15,6 +15,8 @@ type AppConfig struct {
 	Mode      string   `json:"mode"`
 	Static    string   `json:"static"`
 	FilePath  string   `json:"file_path"`
+	FontPath  string   `json:"font_path"`
+	ImgPath   string   `json:"img_path"`
 	JwtSecret string   `json:"jwt_secret"`
 	DataBase  DataBase `json:"data_base"`
 	Email     Email    `json:"email"`

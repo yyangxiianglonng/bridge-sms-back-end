@@ -351,25 +351,47 @@ func (or *OrderController) DrawPdfByOrderCode() mvc.Result {
 		}
 	}
 
+	//从前端获取orderCode,并通过orderCode获取order数据
 	orderCode := or.Context.Params().Get("order_code")
+	orderData := or.OrderService.GetOrder(orderCode)
 
-	now := time.Now().Format("2006-01-02")
-	_, err = os.Stat(config.InitConfig().FilePath + "/pdf/order/" + now)
-	if err != nil {
-		os.Mkdir(config.InitConfig().FilePath+"/pdf/order/"+now, os.ModePerm)
+	if orderData == nil {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ORDERGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ORDERGET),
+			},
+		}
 	}
 
-	fileInfo, _ := ioutil.ReadDir(config.InitConfig().FilePath + "/pdf/order/" + now)
-
-	var files []string
-	for _, file := range fileInfo {
-		files = append(files, file.Name())
+	var orderDataInfo model.Order
+	for _, item := range orderData {
+		orderDataInfo = *item
 	}
 	var fileName string
-	if len(files) < 10 {
-		fileName = time.Now().Format("20060102") + "0" + strconv.Itoa(len(files)+1)
+	if len(orderDataInfo.OrderPdfNum) != 0 {
+		fileName = orderDataInfo.OrderPdfNum
 	} else {
-		fileName = time.Now().Format("20060102") + strconv.Itoa(len(files)+1)
+		now := time.Now().Format("2006-01-02")
+		_, err = os.Stat(config.InitConfig().FilePath + "/pdf/order/" + now)
+		if err != nil {
+			os.Mkdir(config.InitConfig().FilePath+"/pdf/order/"+now, os.ModePerm)
+		}
+
+		fileInfo, _ := ioutil.ReadDir(config.InitConfig().FilePath + "/pdf/order/" + now)
+
+		var files []string
+		for _, file := range fileInfo {
+			files = append(files, file.Name())
+		}
+
+		if len(files) < 10 {
+			fileName = time.Now().Format("20060102") + "0" + strconv.Itoa(len(files)+1)
+		} else {
+			fileName = time.Now().Format("20060102") + strconv.Itoa(len(files)+1)
+		}
 	}
 
 	var orderInfo model.Order
@@ -380,8 +402,8 @@ func (or *OrderController) DrawPdfByOrderCode() mvc.Result {
 		return mvc.Response{
 			Object: map[string]interface{}{
 				"status":  utils.RECODE_FAIL,
-				"type":    utils.RESPMSG_ERROR_ESTIMATEDETAILUPDATE,
-				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEDETAILUPDATE),
+				"type":    utils.RESPMSG_ERROR_ORDERUPDATE,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ORDERUPDATE),
 			},
 		}
 	}
@@ -393,8 +415,8 @@ func (or *OrderController) DrawPdfByOrderCode() mvc.Result {
 		return mvc.Response{
 			Object: map[string]interface{}{
 				"status":  utils.RECODE_FAIL,
-				"type":    utils.RESPMSG_ERROR_ESTIMATEGET,
-				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEGET),
+				"type":    utils.RESPMSG_ERROR_ORDERGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ORDERGET),
 			},
 		}
 	}

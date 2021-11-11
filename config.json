@@ -4,19 +4,27 @@
   "port": "80",
   "static": "/Users/yangxianglong/Projects/WebstormProjects/bridgef/dist",
   "file_path": "/Users/yangxianglong/go/Vue_Iris/back-end/static/file",
+  "font_path": "/Users/yangxianglong/go/Vue_Iris/back-end/static/font/",
+  "img_path": "/Users/yangxianglong/go/Vue_Iris/back-end/static/img/",
   "data_base": {
     "drive": "mysql",
     "host": "192.168.3.39",
     "port": "3306",
-    "user": "bridge",
-    "pwd": "Bridge2019!",
+    "user": "root",
+    "pwd": "root",
     "database": "DB_Bridge"
   },
-  "email": {
+  "email-outlook": {
     "serverHost": "smtp-mail.outlook.com",
     "serverPort": 587,
     "fromEmail": "info@bridge.vc",
     "fromPasswd": "r2u6VpngGQHn"
+  },
+  "email": {
+    "serverHost": "smtp.hetemail.jp",
+    "serverPort": 465,
+    "fromEmail": "admin@bridge-sms.com",
+    "fromPasswd": "djO0rEbbeUd7"
   },
   "mode": "dev",
   "jwt_secret": "bridge"

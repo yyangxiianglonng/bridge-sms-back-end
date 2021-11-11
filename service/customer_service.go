@@ -1,8 +1,9 @@
 package service
 
 import (
-	"github.com/kataras/iris/v12"
 	"main/model"
+
+	"github.com/kataras/iris/v12"
 	"xorm.io/xorm"
 )
 
@@ -36,7 +37,7 @@ type customerService struct {
  * 请求顾客列表数据
  */
 func (pr *customerService) GetCustomers() (customerList []*model.Customer) {
-	err := pr.Engine.Where("is_delete = ?", 0).Find(&customerList)
+	err := pr.Engine.Where("is_delete = ?", 0).OrderBy("customer_code").Find(&customerList)
 
 	if err != nil {
 		iris.New().Logger().Error(err.Error())

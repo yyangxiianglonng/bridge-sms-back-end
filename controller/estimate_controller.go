@@ -729,26 +729,47 @@ func (es *EstimateController) DrawPdfByEstimateCode() mvc.Result {
 			},
 		}
 	}
-
+	//从前端获取estimateCode,并通过estimateCode获取estimate数据
 	estimateCode := es.Context.Params().Get("estimate_code")
+	estimateData := es.EstimateService.GetEstimate(estimateCode)
 
-	now := time.Now().Format("2006-01-02")
-	_, err = os.Stat(config.InitConfig().FilePath + "/pdf/estimate/" + now)
-	if err != nil {
-		os.Mkdir(config.InitConfig().FilePath+"/pdf/estimate/"+now, os.ModePerm)
+	if estimateData == nil {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ESTIMATEGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ESTIMATEGET),
+			},
+		}
 	}
 
-	fileInfo, _ := ioutil.ReadDir(config.InitConfig().FilePath + "/pdf/estimate/" + now)
-
-	var files []string
-	for _, file := range fileInfo {
-		files = append(files, file.Name())
+	var estimateDataInfo model.Estimate
+	for _, item := range estimateData {
+		estimateDataInfo = *item
 	}
 	var fileName string
-	if len(files) < 10 {
-		fileName = time.Now().Format("20060102") + "0" + strconv.Itoa(len(files)+1)
+	if len(estimateDataInfo.EstimatePdfNum) != 0 {
+		fileName = estimateDataInfo.EstimatePdfNum
 	} else {
-		fileName = time.Now().Format("20060102") + strconv.Itoa(len(files)+1)
+		now := time.Now().Format("2006-01-02")
+		_, err = os.Stat(config.InitConfig().FilePath + "/pdf/estimate/" + now)
+		if err != nil {
+			os.Mkdir(config.InitConfig().FilePath+"/pdf/estimate/"+now, os.ModePerm)
+		}
+
+		fileInfo, _ := ioutil.ReadDir(config.InitConfig().FilePath + "/pdf/estimate/" + now)
+
+		var files []string
+		for _, file := range fileInfo {
+			files = append(files, file.Name())
+		}
+
+		if len(files) < 10 {
+			fileName = time.Now().Format("20060102") + "0" + strconv.Itoa(len(files)+1)
+		} else {
+			fileName = time.Now().Format("20060102") + strconv.Itoa(len(files)+1)
+		}
 	}
 
 	var estimateInfo model.Estimate
@@ -818,8 +839,9 @@ func (es *EstimateController) PdfDownload() {
 	const COMMENT = "method:Get url:/v1/estimate/download/{destination_name} Controller:EstimateController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 	destinationName := es.Context.Params().Get("destination_name")
-	fileName := config.InitConfig().FilePath + "/pdf/estimate/" + time.Now().Format("2006-01-02") + "/" + destinationName
-
+	// fileName := config.InitConfig().FilePath + "/pdf/estimate/" + time.Now().Format("2006-01-02") + "/" + destinationName
+	fileName := config.InitConfig().FilePath + "/pdf/estimate/" + destinationName[0:4] + "-" + destinationName[4:6] + "-" + destinationName[6:8] + "/" + destinationName
+	iris.New().Logger().Info(fileName)
 	err := es.Context.SendFile(fileName, destinationName)
 	if err != nil {
 		iris.New().Logger().Error(err.Error())

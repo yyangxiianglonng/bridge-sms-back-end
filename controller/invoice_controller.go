@@ -35,7 +35,7 @@ func (in *InvoiceController) Get() mvc.Result {
 
 	token := in.Context.GetHeader("Authorization")
 	claim, err := utils.ParseToken(token)
-
+	iris.New().Logger().Info(token)
 	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
 		return mvc.Response{
 			Object: map[string]interface{}{
