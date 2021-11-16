@@ -67,15 +67,13 @@ func NewEstimatePdf(estimate []*model.Estimate, estimateDetail []*model.Estimate
 	}
 }
 
-func NewOrderPdf(order []*model.Order) {
+func NewInvoiceOrderPdf(order []*model.Order) {
 
 	//获取见积头数据
 	var orderInfo model.Order
 	for _, item := range order {
 		orderInfo = *item
 	}
-	iris.New().Logger().Info("========")
-	iris.New().Logger().Info(orderInfo)
 
 	pdf := gopdf.GoPdf{}
 	// pdf.Start(gopdf.Config{PageSize: gopdf.Rect{W: 850.32, H: 1203.12}}) //595.28, 841.89 = A4
@@ -93,11 +91,49 @@ func NewOrderPdf(order []*model.Order) {
 	}
 
 	// drawGrid(&pdf)
+	TitleInvoiceOrder(&pdf, orderInfo)
+	CompanyInvoiceOrder(&pdf, orderInfo)
+	BodyOrder(&pdf, orderInfo)
+
+	if len(orderInfo.OrderPdfNum) != 0 {
+		pdf.WritePdf(config.InitConfig().FilePath + "/pdf/invoiceorder/" + orderInfo.InvoiceOrderPdfNum[0:4] + "-" + orderInfo.InvoiceOrderPdfNum[4:6] + "-" + orderInfo.InvoiceOrderPdfNum[6:8] + "/" + orderInfo.InvoiceOrderPdfNum + ".pdf")
+	} else {
+		now := time.Now().Format("2006-01-02")
+		pdf.WritePdf(config.InitConfig().FilePath + "/pdf/invoiceorder/" + now + "/" + orderInfo.InvoiceOrderPdfNum + ".pdf")
+	}
+}
+
+func NewOrderPdf(order []*model.Order) {
+	//获取见积头数据
+	var orderInfo model.Order
+	for _, item := range order {
+		orderInfo = *item
+	}
+
+	pdf := gopdf.GoPdf{}
+	// pdf.Start(gopdf.Config{PageSize: gopdf.Rect{W: 850.32, H: 1203.12}}) //595.28, 841.89 = A4
+	pdf.Start(gopdf.Config{PageSize: gopdf.Rect{W: 595.28, H: 841.89}}) //595.28, 841.89 = A4
+	pdf.AddPage()
+	pdf.SetFillColor(0, 0, 0)
+
+	err := pdf.AddTTFFont("Shippori Mincho", config.InitConfig().FontPath+"ShipporiMincho-Regular.ttf")
+	if err != nil {
+		panic(err)
+	}
+	err = pdf.AddTTFFont("Shippori Mincho B1", config.InitConfig().FontPath+"ShipporiMinchoB1-Bold.ttf")
+	if err != nil {
+		panic(err)
+	}
 	TitleOrder(&pdf, orderInfo)
 	CompanyOrder(&pdf, orderInfo)
 	BodyOrder(&pdf, orderInfo)
-	now := time.Now().Format("2006-01-02")
-	pdf.WritePdf(config.InitConfig().FilePath + "/pdf/order/" + now + "/" + orderInfo.OrderPdfNum + ".pdf")
+
+	if len(orderInfo.InvoiceOrderPdfNum) != 0 {
+		pdf.WritePdf(config.InitConfig().FilePath + "/pdf/order/" + orderInfo.OrderPdfNum[0:4] + "-" + orderInfo.OrderPdfNum[4:6] + "-" + orderInfo.OrderPdfNum[6:8] + "/" + orderInfo.OrderPdfNum + ".pdf")
+	} else {
+		now := time.Now().Format("2006-01-02")
+		pdf.WritePdf(config.InitConfig().FilePath + "/pdf/order/" + now + "/" + orderInfo.OrderPdfNum + ".pdf")
+	}
 }
 
 /*
@@ -165,7 +201,7 @@ func TitleEstimate(pdf *gopdf.GoPdf, info model.Estimate) {
 	pdf.Cell(nil, info.CreatedAt.Format("2006年01月02日")) //16/09/2021
 }
 
-func TitleOrder(pdf *gopdf.GoPdf, info model.Order) {
+func TitleInvoiceOrder(pdf *gopdf.GoPdf, info model.Order) {
 	// err := pdf.AddTTFFont("mincho", config.InitConfig().Static+"/font/"+"ShipporiAntiqueB1-Regular.ttf")
 	// if err != nil {
 	// 	panic(err)
@@ -203,6 +239,47 @@ func TitleOrder(pdf *gopdf.GoPdf, info model.Order) {
 	//〇〇御中
 	pdf.SetX(cu.x1 + 10 + float64(len(info.CustomerName))*5) //x座標指定
 	pdf.SetY(cu.y1)                                          //y座標指定
+	pdf.Cell(nil, "御中")
+}
+
+func TitleOrder(pdf *gopdf.GoPdf, info model.Order) {
+	// err := pdf.AddTTFFont("mincho", config.InitConfig().Static+"/font/"+"ShipporiAntiqueB1-Regular.ttf")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	pdf.SetFont("Shippori Mincho", "", 26) //フォント、文字サイズ指定
+	pdf.SetX(212)                          //x座標指定
+	pdf.SetY(53)                           //y座標指定
+	pdf.Cell(nil, "注　文　書")                 //Rect, String
+	pdf.SetLineWidth(0.7)
+
+	// err = pdf.AddTTFFont("simfang", config.InitConfig().Static+"/font/"+"/simfang.ttf")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	pdf.SetFont("Shippori Mincho", "", 10) //フォント、文字サイズ指定
+	pdf.SetX(420)                          //x座標指定
+	pdf.SetY(90)                           //y座標指定
+	pdf.Cell(nil, "注文書No.")                //注文請書No.
+	pdf.SetX(469)
+	pdf.SetY(90)
+	pdf.Cell(nil, info.InvoiceOrderPdfNum)
+	pdf.SetX(447)
+	pdf.SetY(105)
+	pdf.Cell(nil, info.CreatedAt.Format("2006年01月02日")) //16/09/2021
+
+	cu := Header{
+		x1: 70,
+		y1: 120,
+	}
+	//①得意先名〇〇
+	pdf.SetFont("Shippori Mincho", "", 14) //フォント、文字サイズ指定
+	pdf.SetX(cu.x1)                        //x座標指定
+	pdf.SetY(cu.y1)                        //y座標指定
+	pdf.Cell(nil, "株式会社ブリッジ")
+	//〇〇御中
+	pdf.SetX(cu.x1 + 10 + float64(len("株式会社ブリッジ"))*5) //x座標指定
+	pdf.SetY(cu.y1)                                   //y座標指定
 	pdf.Cell(nil, "御中")
 }
 
@@ -279,7 +356,7 @@ func CompanyEstimate(pdf *gopdf.GoPdf, info model.Estimate) {
 
 }
 
-func CompanyOrder(pdf *gopdf.GoPdf, info model.Order) {
+func CompanyInvoiceOrder(pdf *gopdf.GoPdf, info model.Order) {
 
 	co := Header{
 		x1: 300,
@@ -316,6 +393,66 @@ func CompanyOrder(pdf *gopdf.GoPdf, info model.Order) {
 	pdf.Cell(nil, "件名（業務名）："+info.EstimateName)
 
 	pdf.SetX(co.x1 - 220)
+	pdf.SetY(co.y1 + 120)
+	pdf.Cell(nil, "標題の件につき"+"　"+info.EstimateOfOrder)
+}
+
+func CompanyOrder(pdf *gopdf.GoPdf, info model.Order) {
+
+	co := Header{
+		x1: 250,
+		y1: 140,
+	}
+
+	// err := pdf.AddTTFFont("simfang", config.InitConfig().Static+"/font/"+"simfang.ttf")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	pdf.SetFont("Shippori Mincho", "", 12) //フォント、文字サイズ指定
+
+	// pdf.Image(config.InitConfig().ImgPath+"stamp.png", co.x1+140, co.y1, nil)
+
+	pdf.SetX(co.x1)
+	pdf.SetY(co.y1)
+	if len(info.CustomerAddress) > 120 {
+		pdf.Cell(nil, "（住所）"+info.CustomerAddress[:60]) //地址
+		pdf.SetX(co.x1 + 48)
+		pdf.SetY(co.y1 + 15)
+		pdf.Cell(nil, info.CustomerAddress[60:120]) //地址
+		pdf.SetX(co.x1 + 48)
+		pdf.SetY(co.y1 + 30)
+		pdf.Cell(nil, info.CustomerAddress[120:]) //地址
+	} else if len(info.CustomerAddress) > 60 {
+		pdf.Cell(nil, "（住所）"+info.CustomerAddress[:60]) //地址
+		pdf.SetX(co.x1 + 48)
+		pdf.SetY(co.y1 + 15)
+		pdf.Cell(nil, info.CustomerAddress[60:]) //地址
+	} else {
+		pdf.Cell(nil, "（住所）"+info.CustomerAddress) //地址
+	}
+
+	pdf.SetX(co.x1)
+	pdf.SetY(co.y1 + 50)
+	if len(info.CustomerName) > 60 {
+		pdf.Cell(nil, "（社名）"+info.CustomerName[:60])
+		pdf.SetX(co.x1 + 48)
+		pdf.SetY(co.y1 + 65)
+		pdf.Cell(nil, info.CustomerName[60:])
+	} else {
+		pdf.Cell(nil, "（社名）"+info.CustomerName)
+	}
+
+	// err = pdf.AddTTFFont("ipaexm", config.InitConfig().Static+"/font/"+"ipaexm.ttf")
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	pdf.SetFont("Shippori Mincho", "", 12) //フォント、文字サイズ指定
+	pdf.SetX(co.x1 - 170)
+	pdf.SetY(co.y1 + 85)
+	pdf.Cell(nil, "件名（業務名）："+info.EstimateName)
+
+	pdf.SetX(co.x1 - 170)
 	pdf.SetY(co.y1 + 120)
 	pdf.Cell(nil, "標題の件につき"+"　"+info.EstimateOfOrder)
 }
@@ -473,9 +610,12 @@ func BodyOrder(pdf *gopdf.GoPdf, info model.Order) {
 	pdf.SetY(bo.y1 + 341)
 	pdf.Cell(nil, "そ　の　他")
 
-	pdf.SetX(bo.x1 + 111)
-	pdf.SetY(bo.y1 + 341)
-	pdf.Cell(nil, info.Other)
+	other_str := strings.Split(info.Other, "\n")
+	for index, str := range other_str {
+		pdf.SetX(bo.x1 + 111)
+		pdf.SetY(bo.y1 + 341 + float64(index*13))
+		pdf.Cell(nil, str)
+	}
 
 	pdf.SetX(bo.x1 + 10)
 	pdf.SetY(bo.y1 + 420)

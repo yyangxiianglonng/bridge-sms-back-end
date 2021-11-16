@@ -27,6 +27,7 @@ type Order struct {
 	Other                string    `json:"other"`
 	Note                 string    `json:"note"`
 	OrderPdfNum          string    `json:"order_pdf_num"`
+	InvoiceOrderPdfNum   string    `json:"invoice_order_pdf_num"`
 	CreatedAt            time.Time `xorm:"created" json:"created_at"`
 	CreatedBy            string    `json:"created_by"`
 	ModifiedAt           time.Time `xorm:"updated" json:"modified_at"`
@@ -62,6 +63,7 @@ func (order *Order) OrderToRespDesc() (respInfo interface{}) {
 		"other":                 order.Other,
 		"note":                  order.Note,
 		"order_pdf_num":         order.OrderPdfNum,
+		"invoice_order_pdf_num": order.InvoiceOrderPdfNum,
 		"created_at":            order.CreatedAt,
 		"created_by":            order.CreatedBy,
 		"modified_at":           order.ModifiedAt,

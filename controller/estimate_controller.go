@@ -841,7 +841,6 @@ func (es *EstimateController) PdfDownload() {
 	destinationName := es.Context.Params().Get("destination_name")
 	// fileName := config.InitConfig().FilePath + "/pdf/estimate/" + time.Now().Format("2006-01-02") + "/" + destinationName
 	fileName := config.InitConfig().FilePath + "/pdf/estimate/" + destinationName[0:4] + "-" + destinationName[4:6] + "-" + destinationName[6:8] + "/" + destinationName
-	iris.New().Logger().Info(fileName)
 	err := es.Context.SendFile(fileName, destinationName)
 	if err != nil {
 		iris.New().Logger().Error(err.Error())

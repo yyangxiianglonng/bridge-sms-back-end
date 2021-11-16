@@ -20,10 +20,14 @@ func (or *OrderController) BeforeActivation(ba mvc.BeforeActivation) {
 	ba.Handle("GET", "/all/{project_code}", "GetAllByProjectCode")
 	//通过order_code获取对应的注文列表
 	ba.Handle("GET", "/one/{order_code}", "GetOneByOrderCode")
+	//生成注文请书PDF文件
+	ba.Handle("GET", "/pdf/invoiceorder/{order_code}", "DrawInvoiceOrderPdfByOrderCode")
 	//生成注文书PDF文件
-	ba.Handle("GET", "/pdf/{order_code}", "DrawPdfByOrderCode")
+	ba.Handle("GET", "/pdf/order/{order_code}", "DrawOrderPdfByOrderCode")
+	//下载注请文书PDF文件
+	ba.Handle("GET", "/invoiceorder/download/{destination_name}", "InvoiceOrderPdfDownload")
 	//下载注文书PDF文件
-	ba.Handle("GET", "/download/{destination_name}", "PdfDownload")
+	ba.Handle("GET", "/order/download/{destination_name}", "OrderPdfDownload")
 
 }
 
@@ -332,10 +336,116 @@ func (or *OrderController) Put() mvc.Result {
 /**
  * url: /v1/order/pdf/{order_code}
  * type：GET
+ * descs：生成见注文请书PDF功能
+ */
+func (or *OrderController) DrawInvoiceOrderPdfByOrderCode() mvc.Result {
+	const COMMENT = "method:Get url: /v1/order/pdf/invoiceorder/{order_code} Controller:OrderController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := or.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
+	//从前端获取orderCode,并通过orderCode获取order数据
+	orderCode := or.Context.Params().Get("order_code")
+	orderData := or.OrderService.GetOrder(orderCode)
+
+	if orderData == nil {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ORDERGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ORDERGET),
+			},
+		}
+	}
+
+	var orderDataInfo model.Order
+	for _, item := range orderData {
+		orderDataInfo = *item
+	}
+	var fileName string
+	if len(orderDataInfo.InvoiceOrderPdfNum) != 0 {
+		fileName = orderDataInfo.InvoiceOrderPdfNum
+	} else {
+		now := time.Now().Format("2006-01-02")
+		_, err = os.Stat(config.InitConfig().FilePath + "/pdf/invoiceorder/" + now)
+		if err != nil {
+			os.Mkdir(config.InitConfig().FilePath+"/pdf/invoiceorder/"+now, os.ModePerm)
+		}
+
+		fileInfo, _ := ioutil.ReadDir(config.InitConfig().FilePath + "/pdf/invoiceorder/" + now)
+
+		var files []string
+		for _, file := range fileInfo {
+			files = append(files, file.Name())
+		}
+
+		if len(files) < 10 {
+			fileName = time.Now().Format("20060102") + "0" + strconv.Itoa(len(files)+1)
+		} else {
+			fileName = time.Now().Format("20060102") + strconv.Itoa(len(files)+1)
+		}
+	}
+
+	var orderInfo model.Order
+	orderInfo.InvoiceOrderPdfNum = fileName
+	isSuccess := or.OrderService.UpdateOrder(orderCode, orderInfo)
+	if !isSuccess {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ORDERUPDATE,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ORDERUPDATE),
+			},
+		}
+	}
+
+	order := or.OrderService.GetOrder(orderCode)
+	iris.New().Logger().Info(order)
+	if order == nil {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ORDERGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ORDERGET),
+			},
+		}
+	}
+
+	utils.NewInvoiceOrderPdf(order)
+
+	//返回pdf文件
+	iris.New().Logger().Info(COMMENT + "End")
+	return mvc.Response{
+		Object: map[string]interface{}{
+			"status":   utils.RECODE_OK,
+			"type":     utils.RESPMSG_SUCCESS_ESTIMATEGET,
+			"message":  utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEGET),
+			"filename": fileName + ".pdf",
+		},
+	}
+}
+
+/**
+ * url: /v1/order/pdf/{order_code}
+ * type：GET
  * descs：生成见注文书PDF功能
  */
-func (or *OrderController) DrawPdfByOrderCode() mvc.Result {
-	const COMMENT = "method:Get url: /v1/order/pdf/{order_code} Controller:OrderController" + " "
+func (or *OrderController) DrawOrderPdfByOrderCode() mvc.Result {
+	const COMMENT = "method:Get url: /v1/order/pdf/order/{order_code} Controller:OrderController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 
 	token := or.Context.GetHeader("Authorization")
@@ -437,14 +547,30 @@ func (or *OrderController) DrawPdfByOrderCode() mvc.Result {
 /**
  * url: /v1/estimate/download/{destination_name}
  * type：GET
- * descs：下载见积书PDF功能
+ * descs：下载注文请PDF功能
  */
-func (or *OrderController) PdfDownload() {
-	const COMMENT = "method:Get url:/v1/order/download/{destination_name} Controller:OrderController" + " "
+func (or *OrderController) InvoiceOrderPdfDownload() {
+	const COMMENT = "method:Get url:/v1/order/invoiceorder/download/{destination_name} Controller:OrderController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
 	destinationName := or.Context.Params().Get("destination_name")
-	fileName := config.InitConfig().FilePath + "/pdf/order/" + time.Now().Format("2006-01-02") + "/" + destinationName
+	fileName := config.InitConfig().FilePath + "/pdf/invoiceorder/" + destinationName[0:4] + "-" + destinationName[4:6] + "-" + destinationName[6:8] + "/" + destinationName
+	err := or.Context.SendFile(fileName, destinationName)
+	if err != nil {
+		iris.New().Logger().Error(err.Error())
+		panic(err.Error())
+	}
+}
 
+/**
+ * url: /v1/estimate/download/{destination_name}
+ * type：GET
+ * descs：下载注文书PDF功能
+ */
+func (or *OrderController) OrderPdfDownload() {
+	const COMMENT = "method:Get url:/v1/order/order/download/{destination_name} Controller:OrderController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+	destinationName := or.Context.Params().Get("destination_name")
+	fileName := config.InitConfig().FilePath + "/pdf/order/" + destinationName[0:4] + "-" + destinationName[4:6] + "-" + destinationName[6:8] + "/" + destinationName
 	err := or.Context.SendFile(fileName, destinationName)
 	if err != nil {
 		iris.New().Logger().Error(err.Error())
