@@ -63,6 +63,7 @@ type EstimateDetail struct {
 	SubTotal            string    `json:"sub_total"`
 	Tax                 string    `json:"tax"`
 	Total               string    `json:"total"`
+	Remarks             string    `json:"remarks"`
 	MainFlag            bool      `json:"main_flag"`
 	CreatedAt           time.Time `xorm:"created" json:"created_at"`
 	CreatedBy           string    `json:"created_by"`
@@ -136,6 +137,7 @@ func (estimateDetail *EstimateDetail) EstimateDetailToRespDesc() (respInfo inter
 		"sub_total":             estimateDetail.SubTotal,
 		"tax":                   estimateDetail.Tax,
 		"total":                 estimateDetail.Total,
+		"remarks":               estimateDetail.Remarks,
 		"main_flag":             estimateDetail.MainFlag,
 		"created_at":            estimateDetail.CreatedAt,
 		"created_by":            estimateDetail.CreatedBy,

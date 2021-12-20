@@ -554,6 +554,7 @@ type AddEstimateDetailEntity struct {
 	SubTotal            string    `json:"sub_total"`
 	Tax                 string    `json:"tax"`
 	Total               string    `json:"total"`
+	Remarks             string    `json:"remarks"`
 	MainFlag            bool      `json:"main_flag"`
 	CreatedAt           time.Time `json:"created_at"`
 	CreatedBy           string    `json:"created_by"`
@@ -610,6 +611,7 @@ func (es *EstimateController) PostEstimateDetail() mvc.Result {
 	estimateDetailInfo.SubTotal = estimateDetailEntity.SubTotal
 	estimateDetailInfo.Tax = estimateDetailEntity.Tax
 	estimateDetailInfo.Total = estimateDetailEntity.Total
+	estimateDetailInfo.Remarks = estimateDetailEntity.Remarks
 	estimateDetailInfo.MainFlag = estimateDetailEntity.MainFlag
 	estimateDetailInfo.CreatedBy = estimateDetailEntity.CreatedBy
 	estimateDetailInfo.IsDelete = estimateDetailEntity.IsDelete
@@ -682,6 +684,7 @@ func (es *EstimateController) PutEstimateDetail() mvc.Result {
 	estimateDetailInfo.SubTotal = estimateDetailEntity.SubTotal
 	estimateDetailInfo.Tax = estimateDetailEntity.Tax
 	estimateDetailInfo.Total = estimateDetailEntity.Total
+	estimateDetailInfo.Remarks = estimateDetailEntity.Remarks
 	estimateDetailInfo.MainFlag = estimateDetailEntity.MainFlag
 	estimateDetailInfo.ModifiedBy = estimateDetailEntity.ModifiedBy
 	estimateDetailInfo.IsDelete = estimateDetailEntity.IsDelete

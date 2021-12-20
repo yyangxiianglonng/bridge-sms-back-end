@@ -1,13 +1,18 @@
 package controller
 
 import (
-	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/mvc"
-	"github.com/kataras/iris/v12/sessions"
+	"io/ioutil"
+	"main/config"
 	"main/model"
 	"main/service"
 	"main/utils"
+	"os"
+	"strconv"
 	"time"
+
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/mvc"
+	"github.com/kataras/iris/v12/sessions"
 )
 
 func (de *DeliveryController) BeforeActivation(ba mvc.BeforeActivation) {
@@ -15,6 +20,10 @@ func (de *DeliveryController) BeforeActivation(ba mvc.BeforeActivation) {
 	ba.Handle("GET", "/all/{project_code}", "GerAllByProjectCode")
 	//通过order_code获取对应的注文列表
 	ba.Handle("GET", "/one/{delivery_code}", "GetOneByDeliveryCode")
+	//生成纳品书PDF文件
+	ba.Handle("GET", "/pdf/{delivery_code}", "DrawDeliveryPdfByDeliveryCode")
+	//下载纳品书PDF文件
+	ba.Handle("GET", "/download/{destination_name}", "DeliveryPdfDownload")
 }
 
 type DeliveryController struct {
@@ -307,5 +316,126 @@ func (de *DeliveryController) Put() mvc.Result {
 			"type":    utils.RESPMSG_SUCCESS_DELIVERYUPDATE,
 			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_DELIVERYUPDATE),
 		},
+	}
+}
+
+/**
+ * url: /v1/delivery/pdf/{delivery_code}
+ * type：GET
+ * descs：生成纳品书PDF功能
+ */
+func (de *DeliveryController) DrawDeliveryPdfByDeliveryCode() mvc.Result {
+	const COMMENT = "method:Get url: /v1/delivery/pdf/{delivery_code} Controller:DeliveryController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+
+	token := de.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
+	//从前端获取orderCode,并通过orderCode获取order数据
+	deliveryCode := de.Context.Params().Get("delivery_code")
+	deliveryData := de.DeliveryService.GetDelivery(deliveryCode)
+
+	if deliveryData == nil {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ORDERGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ORDERGET),
+			},
+		}
+	}
+
+	var deliveryDataInfo model.Delivery
+	for _, item := range deliveryData {
+		deliveryDataInfo = *item
+	}
+	var fileName string
+	if len(deliveryDataInfo.DeliveryPdfNum) != 0 {
+		fileName = deliveryDataInfo.DeliveryPdfNum
+	} else {
+		now := time.Now().Format("2006-01-02")
+		_, err = os.Stat(config.InitConfig().FilePath + "/pdf/delivery/" + now)
+		if err != nil {
+			os.Mkdir(config.InitConfig().FilePath+"/pdf/delivery/"+now, os.ModePerm)
+		}
+
+		fileInfo, _ := ioutil.ReadDir(config.InitConfig().FilePath + "/pdf/delivery/" + now)
+
+		var files []string
+		for _, file := range fileInfo {
+			files = append(files, file.Name())
+		}
+
+		if len(files) < 10 {
+			fileName = time.Now().Format("20060102") + "0" + strconv.Itoa(len(files)+1)
+		} else {
+			fileName = time.Now().Format("20060102") + strconv.Itoa(len(files)+1)
+		}
+	}
+
+	var deliveryInfo model.Delivery
+	deliveryInfo.DeliveryPdfNum = fileName
+	isSuccess := de.DeliveryService.UpdateDelivery(deliveryCode, deliveryInfo)
+	if !isSuccess {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ORDERUPDATE,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ORDERUPDATE),
+			},
+		}
+	}
+
+	delivery := de.DeliveryService.GetDelivery(deliveryCode)
+	if delivery == nil {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ORDERGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ORDERGET),
+			},
+		}
+	}
+
+	utils.NewDeliveryPdf(delivery)
+	//返回pdf文件
+	iris.New().Logger().Info(COMMENT + "End")
+	return mvc.Response{
+		Object: map[string]interface{}{
+			"status":   utils.RECODE_OK,
+			"type":     utils.RESPMSG_SUCCESS_ESTIMATEGET,
+			"message":  utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEGET),
+			"filename": fileName + ".pdf",
+		},
+	}
+}
+
+/**
+ * url: /v1/delivery/download/{destination_name}
+ * type：GET
+ * descs：下载纳品书PDF功能
+ */
+func (de *DeliveryController) DeliveryPdfDownload() {
+	const COMMENT = "method:Get url:/v1/delivery/download/{destination_name} Controller:OrderController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+	destinationName := de.Context.Params().Get("destination_name")
+	fileName := config.InitConfig().FilePath + "/pdf/delivery/" + destinationName[0:4] + "-" + destinationName[4:6] + "-" + destinationName[6:8] + "/" + destinationName
+	err := de.Context.SendFile(fileName, destinationName)
+	if err != nil {
+		iris.New().Logger().Error(err.Error())
+		panic(err.Error())
 	}
 }

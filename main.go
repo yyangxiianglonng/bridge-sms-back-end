@@ -37,13 +37,13 @@ func newApp() (app *iris.Application) {
 
 	//注册静态资源
 	app.HandleDir("/static", config.InitConfig().Static+"/static")
-	//app.HandleDir("/static", "C:/inetpub/bridgesys/dist/static")
+	// app.HandleDir("/file", config.InitConfig().FilePath+"/pdf.")
 
-	// app.HandleDir("/download", "./static/file/pdf", iris.DirOptions{
-	// 	IndexName: "/見積書.pdf",
-	// 	Gzip:      false,
-	// 	ShowList:  false,
-	// })
+	app.HandleDir("/download", "./static/file/pdf/", iris.DirOptions{
+		IndexName: "/見積書2021120801.pdf",
+		Gzip:      false,
+		ShowList:  false,
+	})
 
 	//注册视图文件
 	app.RegisterView(iris.HTML(config.InitConfig().Static, ".html"))

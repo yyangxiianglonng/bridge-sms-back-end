@@ -442,7 +442,7 @@ func (or *OrderController) DrawInvoiceOrderPdfByOrderCode() mvc.Result {
 /**
  * url: /v1/order/pdf/{order_code}
  * type：GET
- * descs：生成见注文书PDF功能
+ * descs：生成注文书PDF功能
  */
 func (or *OrderController) DrawOrderPdfByOrderCode() mvc.Result {
 	const COMMENT = "method:Get url: /v1/order/pdf/order/{order_code} Controller:OrderController" + " "
@@ -519,7 +519,6 @@ func (or *OrderController) DrawOrderPdfByOrderCode() mvc.Result {
 	}
 
 	order := or.OrderService.GetOrder(orderCode)
-	iris.New().Logger().Info(order)
 	if order == nil {
 		iris.New().Logger().Error(COMMENT + "ERR")
 		return mvc.Response{

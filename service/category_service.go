@@ -1,8 +1,9 @@
 package service
 
 import (
-	"github.com/kataras/iris/v12"
 	"main/model"
+
+	"github.com/kataras/iris/v12"
 	"xorm.io/xorm"
 )
 
@@ -38,7 +39,7 @@ type categoryService struct {
  * 请求商品分类列表数据
  */
 func (ca *categoryService) GetCategories() (categoryList []*model.Category) {
-	err := ca.Engine.Where("is_delete = ?", 0).Find(&categoryList)
+	err := ca.Engine.Where("is_delete = ?", 0).OrderBy("parent_id").Find(&categoryList)
 
 	if err != nil {
 		iris.New().Logger().Error(err.Error())
