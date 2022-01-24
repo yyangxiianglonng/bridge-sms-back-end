@@ -2,6 +2,8 @@ package service
 
 import (
 	"main/model"
+
+	"github.com/kataras/iris/v12"
 	"xorm.io/xorm"
 )
 
@@ -11,6 +13,7 @@ import (
 type ProjectService interface {
 	GetProjects() []*model.Project
 	GetProject(projectCode string) []*model.Project
+	ExistProject(project model.Project) bool
 	GetTimeline(projectCode string) (timeline []*model.Timeline)
 	SaveProject(project model.Project) bool
 	UpdateProject(projectCode string, estimate model.Project) bool
@@ -58,6 +61,18 @@ func (pr *projectService) GetProject(projectCode string) (project []*model.Proje
 		panic(err.Error())
 	}
 	return
+}
+
+/**
+ * 通过案件CD判断案件是否存在
+ */
+func (pr *projectService) ExistProject(project model.Project) bool {
+	has, err := pr.Engine.Exist(&project)
+	if err != nil {
+		panic(err.Error())
+	}
+	iris.New().Logger().Info(has)
+	return has
 }
 
 /**

@@ -46,7 +46,7 @@ type estimateService struct {
  * 请求所有见积列表数据
  */
 func (es *estimateService) GetEstimateAll() (estimateList []*model.Estimate) {
-	err := es.Engine.Where("is_delete = ?", 0).Find(&estimateList)
+	err := es.Engine.Find(&estimateList)
 
 	if err != nil {
 		panic(err.Error())
@@ -58,7 +58,7 @@ func (es *estimateService) GetEstimateAll() (estimateList []*model.Estimate) {
  * 请求某个案件下的所有见积列表数据
  */
 func (es *estimateService) GetEstimates(projectCode string) (estimateList []*model.Estimate) {
-	err := es.Engine.Where("is_delete = ?", 0).And("project_code = ?", projectCode).Find(&estimateList)
+	err := es.Engine.Where("project_code = ?", projectCode).Find(&estimateList)
 
 	if err != nil {
 		panic(err.Error())
@@ -70,7 +70,7 @@ func (es *estimateService) GetEstimates(projectCode string) (estimateList []*mod
  * 通过见积CD获取见积信息
  */
 func (es *estimateService) GetEstimate(estimateCode string) (estimate []*model.Estimate) {
-	err := es.Engine.Where("is_delete = ?", 0).And("estimate_code = ?", estimateCode).Find(&estimate)
+	err := es.Engine.Where("estimate_code = ?", estimateCode).Find(&estimate)
 
 	if err != nil {
 		iris.New().Logger().Error(err.Error())
@@ -83,7 +83,7 @@ func (es *estimateService) GetEstimate(estimateCode string) (estimate []*model.E
  * 检索见积数据
  */
 func (es *estimateService) SearchEstimates(searchInfo model.Estimate) (estimate []*model.Estimate) {
-	err := es.Engine.Where("is_delete = ?", 0).And("estimate_code = ?", 0).Find(&estimate, searchInfo)
+	err := es.Engine.Where("estimate_code = ?", 0).Find(&estimate, searchInfo)
 
 	if err != nil {
 		iris.New().Logger().Error(err.Error())
@@ -112,10 +112,9 @@ func (es *estimateService) UpdateEstimate(estimateCode string, estimate model.Es
  * 获取某个见积下面所有见积详细列表服务
  */
 func (es *estimateService) GetEstimateDetails(estimateCode string) (estimateDetailList []*model.EstimateDetail) {
-	err := es.Engine.Where("is_delete = ?", 0).And("estimate_code = ?", estimateCode).Find(&estimateDetailList)
+	err := es.Engine.Where("estimate_code = ?", estimateCode).Asc("index").Find(&estimateDetailList)
 
 	if err != nil {
-		iris.New().Logger().Error(err.Error())
 		panic(err.Error())
 	}
 	return

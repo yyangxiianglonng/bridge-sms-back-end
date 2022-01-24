@@ -4,6 +4,7 @@ import (
 	"main/config"
 	"main/controller"
 	"main/datasource"
+	"main/middleware"
 	"main/service"
 	"time"
 
@@ -31,6 +32,8 @@ func main() {
 func newApp() (app *iris.Application) {
 
 	app = iris.New()
+
+	app.Use(middleware.Author)
 
 	//设置日志级别 开发阶段为debug
 	app.Logger().SetLevel("debug")

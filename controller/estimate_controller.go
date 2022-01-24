@@ -117,12 +117,14 @@ func (es *EstimateController) GetSearch() mvc.Result {
 	}
 
 	params := es.Context.URLParams()
-	// iris.New().Logger().Info(projectCode)
+	ProjectCode := params["project_code"]
+	ProjectName := params["project_name"]
+	CustomerName := params["customer_name"]
 	var estimateInfo model.Estimate
-	estimateInfo.ProjectCode = params["project_code"]
-	estimateInfo.ProjectName = params["project_name"]
+	estimateInfo.ProjectCode = &ProjectCode
+	estimateInfo.ProjectName = &ProjectName
 	// estimateInfo.CustomerCode = params["customer_code"]
-	estimateInfo.CustomerName = params["customer_name"]
+	estimateInfo.CustomerName = &CustomerName
 
 	estimate := es.EstimateService.SearchEstimates(estimateInfo)
 	if estimate == nil {
@@ -339,38 +341,38 @@ func (es *EstimateController) Post() mvc.Result {
 
 	var estimateInfo model.Estimate
 
-	estimateInfo.EstimateCode = estimateEntity.EstimateCode
-	estimateInfo.EstimateName = estimateEntity.EstimateName
-	estimateInfo.ProjectCode = estimateEntity.ProjectCode
-	estimateInfo.ProjectName = estimateEntity.ProjectName
-	estimateInfo.CustomerName = estimateEntity.CustomerName
+	estimateInfo.EstimateCode = &estimateEntity.EstimateCode
+	estimateInfo.EstimateName = &estimateEntity.EstimateName
+	estimateInfo.ProjectCode = &estimateEntity.ProjectCode
+	estimateInfo.ProjectName = &estimateEntity.ProjectName
+	estimateInfo.CustomerName = &estimateEntity.CustomerName
 	estimateInfo.EstimateStartDate = estimateEntity.EstimateStartDate
 	estimateInfo.EstimateEndDate = estimateEntity.EstimateEndDate
-	estimateInfo.Work1 = estimateEntity.Work1
-	estimateInfo.Work2 = estimateEntity.Work2
-	estimateInfo.Work3 = estimateEntity.Work3
-	estimateInfo.Deliverables1 = estimateEntity.Deliverables1
-	estimateInfo.Deliverables2 = estimateEntity.Deliverables2
-	estimateInfo.Deliverables3 = estimateEntity.Deliverables3
-	estimateInfo.Media1 = estimateEntity.Media1
-	estimateInfo.Media2 = estimateEntity.Media2
-	estimateInfo.Media3 = estimateEntity.Media3
-	estimateInfo.Quantity1 = estimateEntity.Quantity1
-	estimateInfo.Quantity2 = estimateEntity.Quantity2
-	estimateInfo.Quantity3 = estimateEntity.Quantity3
-	estimateInfo.DeliveryDate1 = estimateEntity.DeliveryDate1
-	estimateInfo.DeliveryDate2 = estimateEntity.DeliveryDate2
-	estimateInfo.DeliveryDate3 = estimateEntity.DeliveryDate3
-	estimateInfo.WorkSpace = estimateEntity.WorkSpace
-	estimateInfo.SubTotal = estimateEntity.SubTotal
-	estimateInfo.Tax = estimateEntity.Tax
-	estimateInfo.Total = estimateEntity.Total
-	estimateInfo.Supplement = estimateEntity.Supplement
-	estimateInfo.Remarks = estimateEntity.Remarks
-	estimateInfo.PaymentConditions = estimateEntity.PaymentConditions
-	estimateInfo.Other = estimateEntity.Other
-	estimateInfo.CreatedBy = estimateEntity.CreatedBy
-	estimateInfo.IsDelete = estimateEntity.IsDelete
+	estimateInfo.Work1 = &estimateEntity.Work1
+	estimateInfo.Work2 = &estimateEntity.Work2
+	estimateInfo.Work3 = &estimateEntity.Work3
+	estimateInfo.Deliverables1 = &estimateEntity.Deliverables1
+	estimateInfo.Deliverables2 = &estimateEntity.Deliverables2
+	estimateInfo.Deliverables3 = &estimateEntity.Deliverables3
+	estimateInfo.Media1 = &estimateEntity.Media1
+	estimateInfo.Media2 = &estimateEntity.Media2
+	estimateInfo.Media3 = &estimateEntity.Media3
+	estimateInfo.Quantity1 = &estimateEntity.Quantity1
+	estimateInfo.Quantity2 = &estimateEntity.Quantity2
+	estimateInfo.Quantity3 = &estimateEntity.Quantity3
+	estimateInfo.DeliveryDate1 = &estimateEntity.DeliveryDate1
+	estimateInfo.DeliveryDate2 = &estimateEntity.DeliveryDate2
+	estimateInfo.DeliveryDate3 = &estimateEntity.DeliveryDate3
+	estimateInfo.WorkSpace = &estimateEntity.WorkSpace
+	estimateInfo.SubTotal = &estimateEntity.SubTotal
+	estimateInfo.Tax = &estimateEntity.Tax
+	estimateInfo.Total = &estimateEntity.Total
+	estimateInfo.Supplement = &estimateEntity.Supplement
+	estimateInfo.Remarks = &estimateEntity.Remarks
+	estimateInfo.PaymentConditions = &estimateEntity.PaymentConditions
+	estimateInfo.Other = &estimateEntity.Other
+	estimateInfo.CreatedBy = &estimateEntity.CreatedBy
+	// estimateInfo.IsDelete = estimateEntity.IsDelete
 
 	isSuccess := es.EstimateService.SaveEstimate(estimateInfo)
 	if !isSuccess {
@@ -431,40 +433,40 @@ func (es *EstimateController) Put() mvc.Result {
 
 	var estimateInfo model.Estimate
 
-	estimateInfo.EstimateCode = estimateEntity.EstimateCode
-	estimateInfo.EstimateName = estimateEntity.EstimateName
-	estimateInfo.ProjectCode = estimateEntity.ProjectCode
-	estimateInfo.ProjectName = estimateEntity.ProjectName
-	estimateInfo.CustomerName = estimateEntity.CustomerName
+	estimateInfo.EstimateCode = &estimateEntity.EstimateCode
+	estimateInfo.EstimateName = &estimateEntity.EstimateName
+	estimateInfo.ProjectCode = &estimateEntity.ProjectCode
+	estimateInfo.ProjectName = &estimateEntity.ProjectName
+	estimateInfo.CustomerName = &estimateEntity.CustomerName
 	estimateInfo.EstimateStartDate = estimateEntity.EstimateStartDate
 	estimateInfo.EstimateEndDate = estimateEntity.EstimateEndDate
-	estimateInfo.Work1 = estimateEntity.Work1
-	estimateInfo.Work2 = estimateEntity.Work2
-	estimateInfo.Work3 = estimateEntity.Work3
-	estimateInfo.Deliverables1 = estimateEntity.Deliverables1
-	estimateInfo.Deliverables2 = estimateEntity.Deliverables2
-	estimateInfo.Deliverables3 = estimateEntity.Deliverables3
-	estimateInfo.Media1 = estimateEntity.Media1
-	estimateInfo.Media2 = estimateEntity.Media2
-	estimateInfo.Media3 = estimateEntity.Media3
-	estimateInfo.Quantity1 = estimateEntity.Quantity1
-	estimateInfo.Quantity2 = estimateEntity.Quantity2
-	estimateInfo.Quantity3 = estimateEntity.Quantity3
-	estimateInfo.DeliveryDate1 = estimateEntity.DeliveryDate1
-	estimateInfo.DeliveryDate2 = estimateEntity.DeliveryDate2
-	estimateInfo.DeliveryDate3 = estimateEntity.DeliveryDate3
-	estimateInfo.WorkSpace = estimateEntity.WorkSpace
-	estimateInfo.SubTotal = estimateEntity.SubTotal
-	estimateInfo.Tax = estimateEntity.Tax
-	estimateInfo.Total = estimateEntity.Total
-	estimateInfo.Supplement = estimateEntity.Supplement
-	estimateInfo.Remarks = estimateEntity.Remarks
-	estimateInfo.PaymentConditions = estimateEntity.PaymentConditions
-	estimateInfo.Other = estimateEntity.Other
-	estimateInfo.ModifiedBy = estimateEntity.ModifiedBy
-	estimateInfo.IsDelete = estimateEntity.IsDelete
+	estimateInfo.Work1 = &estimateEntity.Work1
+	estimateInfo.Work2 = &estimateEntity.Work2
+	estimateInfo.Work3 = &estimateEntity.Work3
+	estimateInfo.Deliverables1 = &estimateEntity.Deliverables1
+	estimateInfo.Deliverables2 = &estimateEntity.Deliverables2
+	estimateInfo.Deliverables3 = &estimateEntity.Deliverables3
+	estimateInfo.Media1 = &estimateEntity.Media1
+	estimateInfo.Media2 = &estimateEntity.Media2
+	estimateInfo.Media3 = &estimateEntity.Media3
+	estimateInfo.Quantity1 = &estimateEntity.Quantity1
+	estimateInfo.Quantity2 = &estimateEntity.Quantity2
+	estimateInfo.Quantity3 = &estimateEntity.Quantity3
+	estimateInfo.DeliveryDate1 = &estimateEntity.DeliveryDate1
+	estimateInfo.DeliveryDate2 = &estimateEntity.DeliveryDate2
+	estimateInfo.DeliveryDate3 = &estimateEntity.DeliveryDate3
+	estimateInfo.WorkSpace = &estimateEntity.WorkSpace
+	estimateInfo.SubTotal = &estimateEntity.SubTotal
+	estimateInfo.Tax = &estimateEntity.Tax
+	estimateInfo.Total = &estimateEntity.Total
+	estimateInfo.Supplement = &estimateEntity.Supplement
+	estimateInfo.Remarks = &estimateEntity.Remarks
+	estimateInfo.PaymentConditions = &estimateEntity.PaymentConditions
+	estimateInfo.Other = &estimateEntity.Other
+	estimateInfo.ModifiedBy = &estimateEntity.ModifiedBy
+	// estimateInfo.IsDelete = estimateEntity.IsDelete
 
-	isSuccess := es.EstimateService.UpdateEstimate(estimateInfo.EstimateCode, estimateInfo)
+	isSuccess := es.EstimateService.UpdateEstimate(*estimateInfo.EstimateCode, estimateInfo)
 	if !isSuccess {
 		iris.New().Logger().Error(COMMENT + "ERR")
 		return mvc.Response{
@@ -545,6 +547,7 @@ func (es *EstimateController) GetAllByEstimateCode() mvc.Result {
  */
 type AddEstimateDetailEntity struct {
 	Id                  int64     `json:"id"`
+	Index               string    `json:"index"`
 	EstimateDetailsCode string    `json:"estimate_details_code"`
 	EstimateCode        string    `json:"estimate_code"`
 	ProductCode         string    `json:"product_code"`
@@ -602,19 +605,20 @@ func (es *EstimateController) PostEstimateDetail() mvc.Result {
 
 	var estimateDetailInfo model.EstimateDetail
 
-	estimateDetailInfo.EstimateDetailsCode = estimateDetailEntity.EstimateDetailsCode
-	estimateDetailInfo.EstimateCode = estimateDetailEntity.EstimateCode
-	estimateDetailInfo.ProductCode = estimateDetailEntity.ProductCode
-	estimateDetailInfo.ProductName = estimateDetailEntity.ProductName
-	estimateDetailInfo.Quantity = estimateDetailEntity.Quantity
-	estimateDetailInfo.Price = estimateDetailEntity.Price
-	estimateDetailInfo.SubTotal = estimateDetailEntity.SubTotal
-	estimateDetailInfo.Tax = estimateDetailEntity.Tax
-	estimateDetailInfo.Total = estimateDetailEntity.Total
-	estimateDetailInfo.Remarks = estimateDetailEntity.Remarks
-	estimateDetailInfo.MainFlag = estimateDetailEntity.MainFlag
-	estimateDetailInfo.CreatedBy = estimateDetailEntity.CreatedBy
-	estimateDetailInfo.IsDelete = estimateDetailEntity.IsDelete
+	estimateDetailInfo.Index = &estimateDetailEntity.Index
+	estimateDetailInfo.EstimateDetailsCode = &estimateDetailEntity.EstimateDetailsCode
+	estimateDetailInfo.EstimateCode = &estimateDetailEntity.EstimateCode
+	estimateDetailInfo.ProductCode = &estimateDetailEntity.ProductCode
+	estimateDetailInfo.ProductName = &estimateDetailEntity.ProductName
+	estimateDetailInfo.Quantity = &estimateDetailEntity.Quantity
+	estimateDetailInfo.Price = &estimateDetailEntity.Price
+	estimateDetailInfo.SubTotal = &estimateDetailEntity.SubTotal
+	estimateDetailInfo.Tax = &estimateDetailEntity.Tax
+	estimateDetailInfo.Total = &estimateDetailEntity.Total
+	estimateDetailInfo.Remarks = &estimateDetailEntity.Remarks
+	estimateDetailInfo.MainFlag = &estimateDetailEntity.MainFlag
+	estimateDetailInfo.CreatedBy = &estimateDetailEntity.CreatedBy
+	// estimateDetailInfo.IsDelete = &estimateDetailEntity.IsDelete
 
 	isSuccess := es.EstimateService.SaveEstimateDetail(estimateDetailInfo)
 	if !isSuccess {
@@ -674,20 +678,20 @@ func (es *EstimateController) PutEstimateDetail() mvc.Result {
 	}
 
 	var estimateDetailInfo model.EstimateDetail
-
-	estimateDetailInfo.EstimateDetailsCode = estimateDetailEntity.EstimateDetailsCode
-	estimateDetailInfo.EstimateCode = estimateDetailEntity.EstimateCode
-	estimateDetailInfo.ProductCode = estimateDetailEntity.ProductCode
-	estimateDetailInfo.ProductName = estimateDetailEntity.ProductName
-	estimateDetailInfo.Quantity = estimateDetailEntity.Quantity
-	estimateDetailInfo.Price = estimateDetailEntity.Price
-	estimateDetailInfo.SubTotal = estimateDetailEntity.SubTotal
-	estimateDetailInfo.Tax = estimateDetailEntity.Tax
-	estimateDetailInfo.Total = estimateDetailEntity.Total
-	estimateDetailInfo.Remarks = estimateDetailEntity.Remarks
-	estimateDetailInfo.MainFlag = estimateDetailEntity.MainFlag
-	estimateDetailInfo.ModifiedBy = estimateDetailEntity.ModifiedBy
-	estimateDetailInfo.IsDelete = estimateDetailEntity.IsDelete
+	estimateDetailInfo.Index = &estimateDetailEntity.Index
+	estimateDetailInfo.EstimateDetailsCode = &estimateDetailEntity.EstimateDetailsCode
+	estimateDetailInfo.EstimateCode = &estimateDetailEntity.EstimateCode
+	estimateDetailInfo.ProductCode = &estimateDetailEntity.ProductCode
+	estimateDetailInfo.ProductName = &estimateDetailEntity.ProductName
+	estimateDetailInfo.Quantity = &estimateDetailEntity.Quantity
+	estimateDetailInfo.Price = &estimateDetailEntity.Price
+	estimateDetailInfo.SubTotal = &estimateDetailEntity.SubTotal
+	estimateDetailInfo.Tax = &estimateDetailEntity.Tax
+	estimateDetailInfo.Total = &estimateDetailEntity.Total
+	estimateDetailInfo.Remarks = &estimateDetailEntity.Remarks
+	estimateDetailInfo.MainFlag = &estimateDetailEntity.MainFlag
+	estimateDetailInfo.ModifiedBy = &estimateDetailEntity.ModifiedBy
+	// estimateDetailInfo.IsDelete = &estimateDetailEntity.IsDelete
 
 	isSuccess := es.EstimateService.UpdateEstimateDetail(estimateDetailEntity.EstimateDetailsCode, estimateDetailInfo)
 	if !isSuccess {
@@ -751,9 +755,11 @@ func (es *EstimateController) DrawPdfByEstimateCode() mvc.Result {
 	for _, item := range estimateData {
 		estimateDataInfo = *item
 	}
+
 	var fileName string
-	if len(estimateDataInfo.EstimatePdfNum) != 0 {
-		fileName = estimateDataInfo.EstimatePdfNum
+
+	if estimateDataInfo.EstimatePdfNum != nil {
+		fileName = *estimateDataInfo.EstimatePdfNum
 	} else {
 		now := time.Now().Format("2006-01-02")
 		_, err = os.Stat(config.InitConfig().FilePath + "/pdf/estimate/" + now)
@@ -776,7 +782,7 @@ func (es *EstimateController) DrawPdfByEstimateCode() mvc.Result {
 	}
 
 	var estimateInfo model.Estimate
-	estimateInfo.EstimatePdfNum = fileName
+	estimateInfo.EstimatePdfNum = &fileName
 	isSuccess := es.EstimateService.UpdateEstimate(estimateCode, estimateInfo)
 	if !isSuccess {
 		iris.New().Logger().Error(COMMENT + "ERR")
@@ -823,12 +829,13 @@ func (es *EstimateController) DrawPdfByEstimateCode() mvc.Result {
 	utils.NewEstimatePdf(estimate, estimateDetail)
 	//返回pdf文件
 	iris.New().Logger().Info(COMMENT + "End")
+
 	return mvc.Response{
 		Object: map[string]interface{}{
 			"status":   utils.RECODE_OK,
 			"type":     utils.RESPMSG_SUCCESS_ESTIMATEGET,
 			"message":  utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEGET),
-			"filename": fileName + ".pdf",
+			"filename": fileName + "_見積書_" + *estimateDataInfo.CustomerName + "様_" + *estimateDataInfo.EstimateName + ".pdf",
 		},
 	}
 }
@@ -888,19 +895,20 @@ func (es *EstimateController) DeleteDetail() mvc.Result {
 
 	var estimateDetailInfo model.EstimateDetail
 
-	estimateDetailInfo.EstimateDetailsCode = estimateDetailEntity.EstimateDetailsCode
-	estimateDetailInfo.EstimateCode = estimateDetailEntity.EstimateCode
-	estimateDetailInfo.ProductCode = estimateDetailEntity.ProductCode
-	estimateDetailInfo.ProductName = estimateDetailEntity.ProductName
-	estimateDetailInfo.Quantity = estimateDetailEntity.Quantity
-	estimateDetailInfo.Price = estimateDetailEntity.Price
-	estimateDetailInfo.SubTotal = estimateDetailEntity.SubTotal
-	estimateDetailInfo.Tax = estimateDetailEntity.Tax
-	estimateDetailInfo.Total = estimateDetailEntity.Total
-	estimateDetailInfo.MainFlag = estimateDetailEntity.MainFlag
-	estimateDetailInfo.ModifiedBy = estimateDetailEntity.ModifiedBy
-	estimateDetailInfo.DeletedBy = estimateDetailEntity.DeletedBy
-	estimateDetailInfo.IsDelete = estimateDetailEntity.IsDelete
+	estimateDetailInfo.Index = &estimateDetailEntity.Index
+	estimateDetailInfo.EstimateDetailsCode = &estimateDetailEntity.EstimateDetailsCode
+	estimateDetailInfo.EstimateCode = &estimateDetailEntity.EstimateCode
+	estimateDetailInfo.ProductCode = &estimateDetailEntity.ProductCode
+	estimateDetailInfo.ProductName = &estimateDetailEntity.ProductName
+	estimateDetailInfo.Quantity = &estimateDetailEntity.Quantity
+	estimateDetailInfo.Price = &estimateDetailEntity.Price
+	estimateDetailInfo.SubTotal = &estimateDetailEntity.SubTotal
+	estimateDetailInfo.Tax = &estimateDetailEntity.Tax
+	estimateDetailInfo.Total = &estimateDetailEntity.Total
+	estimateDetailInfo.MainFlag = &estimateDetailEntity.MainFlag
+	estimateDetailInfo.ModifiedBy = &estimateDetailEntity.ModifiedBy
+	estimateDetailInfo.DeletedBy = &estimateDetailEntity.DeletedBy
+	// estimateDetailInfo.IsDelete = &estimateDetailEntity.IsDelete
 
 	estimate_details_code := es.Context.Params().Get("estimate_details_code")
 	isSuccess := es.EstimateService.DeleteEstimateDetail(estimate_details_code, estimateDetailInfo)

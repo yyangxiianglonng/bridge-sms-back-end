@@ -1,13 +1,14 @@
 package controller
 
 import (
-	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/mvc"
-	"github.com/kataras/iris/v12/sessions"
 	"main/model"
 	"main/service"
 	"main/utils"
 	"time"
+
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/mvc"
+	"github.com/kataras/iris/v12/sessions"
 )
 
 type ProjectController struct {
@@ -82,18 +83,18 @@ func (pr *ProjectController) Get() mvc.Result {
 func (pr *ProjectController) GetOneByProjectCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/project/one/{project_code} Controller:ProjectController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
-	token := pr.Context.GetHeader("Authorization")
-	claim, err := utils.ParseToken(token)
+	// token := pr.Context.GetHeader("Authorization")
+	// claim, err := utils.ParseToken(token)
 
-	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
-		return mvc.Response{
-			Object: map[string]interface{}{
-				"status":  utils.RECODE_UNLOGIN,
-				"type":    utils.RESPMSG_ERROR_SESSION,
-				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
-			},
-		}
-	}
+	// if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+	// 	return mvc.Response{
+	// 		Object: map[string]interface{}{
+	// 			"status":  utils.RECODE_UNLOGIN,
+	// 			"type":    utils.RESPMSG_ERROR_SESSION,
+	// 			"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+	// 		},
+	// 	}
+	// }
 
 	projectCode := pr.Context.Params().Get("project_code")
 	project := pr.ProjectService.GetProject(projectCode)
@@ -239,15 +240,31 @@ func (pr *ProjectController) Post() mvc.Result {
 	projectInfo.Synopsis = projectEntity.Synopsis
 	projectInfo.CreatedBy = projectEntity.CreatedBy
 
-	isSuccess := pr.ProjectService.SaveProject(projectInfo)
-	if !isSuccess {
-		iris.New().Logger().Error(COMMENT + "ERR")
-		return mvc.Response{
-			Object: map[string]interface{}{
-				"status":  utils.RECODE_FAIL,
-				"type":    utils.RESPMSG_ERROR_PROJECTADD,
-				"message": utils.Recode2Text(utils.RESPMSG_ERROR_PROJECTADD),
-			},
+	//避免新案件做成画面，连续点击登录更新时造成多次登录案件的问题。
+	isExist := pr.ProjectService.ExistProject(projectInfo)
+	if isExist {
+		isSuccess := pr.ProjectService.UpdateProject(projectInfo.ProjectCode, projectInfo)
+		if !isSuccess {
+			iris.New().Logger().Error(COMMENT + "ERR")
+			return mvc.Response{
+				Object: map[string]interface{}{
+					"status":  utils.RECODE_FAIL,
+					"type":    utils.RESPMSG_ERROR_PROJECTUPDATE,
+					"message": utils.Recode2Text(utils.RESPMSG_ERROR_PROJECTUPDATE),
+				},
+			}
+		}
+	} else {
+		isSuccess := pr.ProjectService.SaveProject(projectInfo)
+		if !isSuccess {
+			iris.New().Logger().Error(COMMENT + "ERR")
+			return mvc.Response{
+				Object: map[string]interface{}{
+					"status":  utils.RECODE_FAIL,
+					"type":    utils.RESPMSG_ERROR_PROJECTADD,
+					"message": utils.Recode2Text(utils.RESPMSG_ERROR_PROJECTADD),
+				},
+			}
 		}
 	}
 
