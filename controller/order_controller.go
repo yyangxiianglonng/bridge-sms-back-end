@@ -149,28 +149,30 @@ func (or *OrderController) GetOneByOrderCode() mvc.Result {
  * 即将添加的注文记录实体
  */
 type AddOrderEntity struct {
-	Id                   int64  `json:"id"`
-	OrderCode            string `json:"order_code"`
-	EstimateCode         string `json:"estimate_code"`
-	EstimateName         string `json:"estimate_name"`
-	ProjectCode          string `json:"project_code"`
-	ProjectName          string `json:"project_name"`
-	EstimateOfOrder      string `json:"estimate_of_order"`
-	CustomerName         string `json:"customer_name"`
-	CustomerAddress      string `json:"customer_address"`
-	Work                 string `json:"work"`
-	Deliverables         string `json:"deliverables"`
-	WorkTime             string `json:"work_time"`
-	Personnel1           string `json:"personnel1"`
-	Personnel2           string `json:"personnel2"`
-	DeliverableSpace     string `json:"deliverable_space"`
-	Commission           string `json:"commission"`
-	PaymentDate          string `json:"payment_date"`
-	AcceptanceConditions string `json:"acceptance_conditions"`
-	Other                string `json:"other"`
-	Note                 string `json:"note"`
-	CreatedBy            string `json:"created_by"`
-	ModifiedBy           string `json:"modified_by"`
+	Id                   int64     `json:"id"`
+	OrderCode            string    `json:"order_code"`
+	EstimateCode         string    `json:"estimate_code"`
+	EstimateName         string    `json:"estimate_name"`
+	ProjectCode          string    `json:"project_code"`
+	ProjectName          string    `json:"project_name"`
+	EstimateOfOrder      string    `json:"estimate_of_order"`
+	CustomerName         string    `json:"customer_name"`
+	CustomerAddress      string    `json:"customer_address"`
+	Work                 string    `json:"work"`
+	Deliverables         string    `json:"deliverables"`
+	WorkTime             string    `json:"work_time"`
+	Personnel1           string    `json:"personnel1"`
+	Personnel2           string    `json:"personnel2"`
+	DeliverableSpace     string    `json:"deliverable_space"`
+	Commission           string    `json:"commission"`
+	PaymentDate          string    `json:"payment_date"`
+	AcceptanceConditions string    `json:"acceptance_conditions"`
+	Other                string    `json:"other"`
+	Note                 string    `json:"note"`
+	InvoiceOrderDate     time.Time `json:"invoice_order_date"`
+	CreatedBy            string    `json:"created_by"`
+	ModifiedBy           string    `json:"modified_by"`
+	DeletedBy            string    `json:"deleted_by"`
 }
 
 /**
@@ -210,26 +212,27 @@ func (or *OrderController) Post() mvc.Result {
 
 	var orderInfo model.Order
 
-	orderInfo.OrderCode = orderEntity.OrderCode
-	orderInfo.EstimateCode = orderEntity.EstimateCode
-	orderInfo.EstimateName = orderEntity.EstimateName
-	orderInfo.ProjectCode = orderEntity.ProjectCode
-	orderInfo.ProjectName = orderEntity.ProjectName
-	orderInfo.EstimateOfOrder = orderEntity.EstimateOfOrder
-	orderInfo.CustomerName = orderEntity.CustomerName
-	orderInfo.CustomerAddress = orderEntity.CustomerAddress
-	orderInfo.Work = orderEntity.Work
-	orderInfo.Deliverables = orderEntity.Deliverables
-	orderInfo.WorkTime = orderEntity.WorkTime
-	orderInfo.Personnel1 = orderEntity.Personnel1
-	orderInfo.Personnel2 = orderEntity.Personnel2
-	orderInfo.DeliverableSpace = orderEntity.DeliverableSpace
-	orderInfo.Commission = orderEntity.Commission
-	orderInfo.PaymentDate = orderEntity.PaymentDate
-	orderInfo.AcceptanceConditions = orderEntity.AcceptanceConditions
-	orderInfo.Other = orderEntity.Other
-	orderInfo.Note = orderEntity.Note
-	orderInfo.CreatedBy = orderEntity.CreatedBy
+	orderInfo.OrderCode = &orderEntity.OrderCode
+	orderInfo.EstimateCode = &orderEntity.EstimateCode
+	orderInfo.EstimateName = &orderEntity.EstimateName
+	orderInfo.ProjectCode = &orderEntity.ProjectCode
+	orderInfo.ProjectName = &orderEntity.ProjectName
+	orderInfo.EstimateOfOrder = &orderEntity.EstimateOfOrder
+	orderInfo.CustomerName = &orderEntity.CustomerName
+	orderInfo.CustomerAddress = &orderEntity.CustomerAddress
+	orderInfo.Work = &orderEntity.Work
+	orderInfo.Deliverables = &orderEntity.Deliverables
+	orderInfo.WorkTime = &orderEntity.WorkTime
+	orderInfo.Personnel1 = &orderEntity.Personnel1
+	orderInfo.Personnel2 = &orderEntity.Personnel2
+	orderInfo.DeliverableSpace = &orderEntity.DeliverableSpace
+	orderInfo.Commission = &orderEntity.Commission
+	orderInfo.PaymentDate = &orderEntity.PaymentDate
+	orderInfo.AcceptanceConditions = &orderEntity.AcceptanceConditions
+	orderInfo.Other = &orderEntity.Other
+	orderInfo.Note = &orderEntity.Note
+	orderInfo.InvoiceOrderDate = orderEntity.InvoiceOrderDate
+	orderInfo.CreatedBy = &orderEntity.CreatedBy
 
 	isSuccess := or.OrderService.SaveOrder(orderInfo)
 	if !isSuccess {
@@ -290,28 +293,29 @@ func (or *OrderController) Put() mvc.Result {
 
 	var orderInfo model.Order
 
-	orderInfo.OrderCode = orderEntity.OrderCode
-	orderInfo.EstimateCode = orderEntity.EstimateCode
-	orderInfo.EstimateName = orderEntity.EstimateName
-	orderInfo.ProjectCode = orderEntity.ProjectCode
-	orderInfo.ProjectName = orderEntity.ProjectName
-	orderInfo.EstimateOfOrder = orderEntity.EstimateOfOrder
-	orderInfo.CustomerName = orderEntity.CustomerName
-	orderInfo.CustomerAddress = orderEntity.CustomerAddress
-	orderInfo.Work = orderEntity.Work
-	orderInfo.Deliverables = orderEntity.Deliverables
-	orderInfo.WorkTime = orderEntity.WorkTime
-	orderInfo.Personnel1 = orderEntity.Personnel1
-	orderInfo.Personnel2 = orderEntity.Personnel2
-	orderInfo.DeliverableSpace = orderEntity.DeliverableSpace
-	orderInfo.Commission = orderEntity.Commission
-	orderInfo.PaymentDate = orderEntity.PaymentDate
-	orderInfo.AcceptanceConditions = orderEntity.AcceptanceConditions
-	orderInfo.Other = orderEntity.Other
-	orderInfo.Note = orderEntity.Note
-	orderInfo.ModifiedBy = orderEntity.ModifiedBy
+	orderInfo.OrderCode = &orderEntity.OrderCode
+	orderInfo.EstimateCode = &orderEntity.EstimateCode
+	orderInfo.EstimateName = &orderEntity.EstimateName
+	orderInfo.ProjectCode = &orderEntity.ProjectCode
+	orderInfo.ProjectName = &orderEntity.ProjectName
+	orderInfo.EstimateOfOrder = &orderEntity.EstimateOfOrder
+	orderInfo.CustomerName = &orderEntity.CustomerName
+	orderInfo.CustomerAddress = &orderEntity.CustomerAddress
+	orderInfo.Work = &orderEntity.Work
+	orderInfo.Deliverables = &orderEntity.Deliverables
+	orderInfo.WorkTime = &orderEntity.WorkTime
+	orderInfo.Personnel1 = &orderEntity.Personnel1
+	orderInfo.Personnel2 = &orderEntity.Personnel2
+	orderInfo.DeliverableSpace = &orderEntity.DeliverableSpace
+	orderInfo.Commission = &orderEntity.Commission
+	orderInfo.PaymentDate = &orderEntity.PaymentDate
+	orderInfo.AcceptanceConditions = &orderEntity.AcceptanceConditions
+	orderInfo.Other = &orderEntity.Other
+	orderInfo.Note = &orderEntity.Note
+	orderInfo.InvoiceOrderDate = orderEntity.InvoiceOrderDate
+	orderInfo.ModifiedBy = &orderEntity.ModifiedBy
 
-	isSuccess := or.OrderService.UpdateOrder(orderEntity.OrderCode, orderInfo)
+	isSuccess := or.OrderService.UpdateOrder(*orderInfo.OrderCode, orderInfo)
 	if !isSuccess {
 		iris.New().Logger().Error(COMMENT + "ERR")
 		return mvc.Response{
@@ -375,8 +379,8 @@ func (or *OrderController) DrawInvoiceOrderPdfByOrderCode() mvc.Result {
 		orderDataInfo = *item
 	}
 	var fileName string
-	if len(orderDataInfo.InvoiceOrderPdfNum) != 0 {
-		fileName = orderDataInfo.InvoiceOrderPdfNum
+	if orderDataInfo.InvoiceOrderPdfNum != nil {
+		fileName = *orderDataInfo.InvoiceOrderPdfNum
 	} else {
 		now := time.Now().Format("2006-01-02")
 		_, err = os.Stat(config.InitConfig().FilePath + "/pdf/invoiceorder/" + now)
@@ -399,7 +403,7 @@ func (or *OrderController) DrawInvoiceOrderPdfByOrderCode() mvc.Result {
 	}
 
 	var orderInfo model.Order
-	orderInfo.InvoiceOrderPdfNum = fileName
+	orderInfo.InvoiceOrderPdfNum = &fileName
 	isSuccess := or.OrderService.UpdateOrder(orderCode, orderInfo)
 	if !isSuccess {
 		iris.New().Logger().Error(COMMENT + "ERR")
@@ -434,7 +438,7 @@ func (or *OrderController) DrawInvoiceOrderPdfByOrderCode() mvc.Result {
 			"status":   utils.RECODE_OK,
 			"type":     utils.RESPMSG_SUCCESS_ESTIMATEGET,
 			"message":  utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEGET),
-			"filename": fileName + ".pdf",
+			"filename": fileName + "_注文請書_" + *orderDataInfo.CustomerName + "様_" + *orderDataInfo.ProjectName + ".pdf",
 		},
 	}
 }
@@ -481,8 +485,8 @@ func (or *OrderController) DrawOrderPdfByOrderCode() mvc.Result {
 		orderDataInfo = *item
 	}
 	var fileName string
-	if len(orderDataInfo.OrderPdfNum) != 0 {
-		fileName = orderDataInfo.OrderPdfNum
+	if orderDataInfo.OrderPdfNum != nil {
+		fileName = *orderDataInfo.OrderPdfNum
 	} else {
 		now := time.Now().Format("2006-01-02")
 		_, err = os.Stat(config.InitConfig().FilePath + "/pdf/order/" + now)
@@ -505,7 +509,7 @@ func (or *OrderController) DrawOrderPdfByOrderCode() mvc.Result {
 	}
 
 	var orderInfo model.Order
-	orderInfo.OrderPdfNum = fileName
+	orderInfo.OrderPdfNum = &fileName
 	isSuccess := or.OrderService.UpdateOrder(orderCode, orderInfo)
 	if !isSuccess {
 		iris.New().Logger().Error(COMMENT + "ERR")
@@ -538,7 +542,7 @@ func (or *OrderController) DrawOrderPdfByOrderCode() mvc.Result {
 			"status":   utils.RECODE_OK,
 			"type":     utils.RESPMSG_SUCCESS_ESTIMATEGET,
 			"message":  utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEGET),
-			"filename": fileName + ".pdf",
+			"filename": fileName + "_注文書_" + *orderDataInfo.CustomerName + "様_" + *orderDataInfo.ProjectName + ".pdf",
 		},
 	}
 }

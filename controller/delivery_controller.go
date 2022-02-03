@@ -202,23 +202,23 @@ func (de *DeliveryController) Post() mvc.Result {
 
 	var deliveryInfo model.Delivery
 
-	deliveryInfo.DeliveryCode = deliveryEntity.DeliveryCode
-	deliveryInfo.EstimateCode = deliveryEntity.EstimateCode
-	deliveryInfo.ProjectCode = deliveryEntity.ProjectCode
-	deliveryInfo.ProjectName = deliveryEntity.ProjectName
-	deliveryInfo.CustomerName = deliveryEntity.CustomerName
-	deliveryInfo.Deliverables1 = deliveryEntity.Deliverables1
-	deliveryInfo.Deliverables2 = deliveryEntity.Deliverables2
-	deliveryInfo.Deliverables3 = deliveryEntity.Deliverables3
-	deliveryInfo.Quantity1 = deliveryEntity.Quantity1
-	deliveryInfo.Quantity2 = deliveryEntity.Quantity2
-	deliveryInfo.Quantity3 = deliveryEntity.Quantity3
-	deliveryInfo.Memo1 = deliveryEntity.Memo1
-	deliveryInfo.Memo2 = deliveryEntity.Memo2
-	deliveryInfo.Memo3 = deliveryEntity.Memo3
-	deliveryInfo.DeliveryDate = deliveryEntity.DeliveryDate
-	deliveryInfo.Remarks = deliveryEntity.Remarks
-	deliveryInfo.CreatedBy = deliveryEntity.CreatedBy
+	deliveryInfo.DeliveryCode = &deliveryEntity.DeliveryCode
+	deliveryInfo.EstimateCode = &deliveryEntity.EstimateCode
+	deliveryInfo.ProjectCode = &deliveryEntity.ProjectCode
+	deliveryInfo.ProjectName = &deliveryEntity.ProjectName
+	deliveryInfo.CustomerName = &deliveryEntity.CustomerName
+	deliveryInfo.Deliverables1 = &deliveryEntity.Deliverables1
+	deliveryInfo.Deliverables2 = &deliveryEntity.Deliverables2
+	deliveryInfo.Deliverables3 = &deliveryEntity.Deliverables3
+	deliveryInfo.Quantity1 = &deliveryEntity.Quantity1
+	deliveryInfo.Quantity2 = &deliveryEntity.Quantity2
+	deliveryInfo.Quantity3 = &deliveryEntity.Quantity3
+	deliveryInfo.Memo1 = &deliveryEntity.Memo1
+	deliveryInfo.Memo2 = &deliveryEntity.Memo2
+	deliveryInfo.Memo3 = &deliveryEntity.Memo3
+	deliveryInfo.DeliveryDate = &deliveryEntity.DeliveryDate
+	deliveryInfo.Remarks = &deliveryEntity.Remarks
+	deliveryInfo.CreatedBy = &deliveryEntity.CreatedBy
 
 	isSuccess := de.DeliveryService.SaveDelivery(deliveryInfo)
 	if !isSuccess {
@@ -279,23 +279,23 @@ func (de *DeliveryController) Put() mvc.Result {
 
 	var deliveryInfo model.Delivery
 
-	deliveryInfo.DeliveryCode = deliveryEntity.DeliveryCode
-	deliveryInfo.EstimateCode = deliveryEntity.EstimateCode
-	deliveryInfo.ProjectCode = deliveryEntity.ProjectCode
-	deliveryInfo.ProjectName = deliveryEntity.ProjectName
-	deliveryInfo.CustomerName = deliveryEntity.CustomerName
-	deliveryInfo.Deliverables1 = deliveryEntity.Deliverables1
-	deliveryInfo.Deliverables2 = deliveryEntity.Deliverables2
-	deliveryInfo.Deliverables3 = deliveryEntity.Deliverables3
-	deliveryInfo.Quantity1 = deliveryEntity.Quantity1
-	deliveryInfo.Quantity2 = deliveryEntity.Quantity2
-	deliveryInfo.Quantity3 = deliveryEntity.Quantity3
-	deliveryInfo.Memo1 = deliveryEntity.Memo1
-	deliveryInfo.Memo2 = deliveryEntity.Memo2
-	deliveryInfo.Memo3 = deliveryEntity.Memo3
-	deliveryInfo.DeliveryDate = deliveryEntity.DeliveryDate
-	deliveryInfo.Remarks = deliveryEntity.Remarks
-	deliveryInfo.ModifiedBy = deliveryEntity.ModifiedBy
+	deliveryInfo.DeliveryCode = &deliveryEntity.DeliveryCode
+	deliveryInfo.EstimateCode = &deliveryEntity.EstimateCode
+	deliveryInfo.ProjectCode = &deliveryEntity.ProjectCode
+	deliveryInfo.ProjectName = &deliveryEntity.ProjectName
+	deliveryInfo.CustomerName = &deliveryEntity.CustomerName
+	deliveryInfo.Deliverables1 = &deliveryEntity.Deliverables1
+	deliveryInfo.Deliverables2 = &deliveryEntity.Deliverables2
+	deliveryInfo.Deliverables3 = &deliveryEntity.Deliverables3
+	deliveryInfo.Quantity1 = &deliveryEntity.Quantity1
+	deliveryInfo.Quantity2 = &deliveryEntity.Quantity2
+	deliveryInfo.Quantity3 = &deliveryEntity.Quantity3
+	deliveryInfo.Memo1 = &deliveryEntity.Memo1
+	deliveryInfo.Memo2 = &deliveryEntity.Memo2
+	deliveryInfo.Memo3 = &deliveryEntity.Memo3
+	deliveryInfo.DeliveryDate = &deliveryEntity.DeliveryDate
+	deliveryInfo.Remarks = &deliveryEntity.Remarks
+	deliveryInfo.ModifiedBy = &deliveryEntity.ModifiedBy
 
 	isSuccess := de.DeliveryService.UpdateDelivery(deliveryEntity.DeliveryCode, deliveryInfo)
 	if !isSuccess {
@@ -361,8 +361,8 @@ func (de *DeliveryController) DrawDeliveryPdfByDeliveryCode() mvc.Result {
 		deliveryDataInfo = *item
 	}
 	var fileName string
-	if len(deliveryDataInfo.DeliveryPdfNum) != 0 {
-		fileName = deliveryDataInfo.DeliveryPdfNum
+	if deliveryDataInfo.DeliveryPdfNum != nil {
+		fileName = *deliveryDataInfo.DeliveryPdfNum
 	} else {
 		now := time.Now().Format("2006-01-02")
 		_, err = os.Stat(config.InitConfig().FilePath + "/pdf/delivery/" + now)
@@ -385,7 +385,7 @@ func (de *DeliveryController) DrawDeliveryPdfByDeliveryCode() mvc.Result {
 	}
 
 	var deliveryInfo model.Delivery
-	deliveryInfo.DeliveryPdfNum = fileName
+	deliveryInfo.DeliveryPdfNum = &fileName
 	isSuccess := de.DeliveryService.UpdateDelivery(deliveryCode, deliveryInfo)
 	if !isSuccess {
 		iris.New().Logger().Error(COMMENT + "ERR")
@@ -418,7 +418,7 @@ func (de *DeliveryController) DrawDeliveryPdfByDeliveryCode() mvc.Result {
 			"status":   utils.RECODE_OK,
 			"type":     utils.RESPMSG_SUCCESS_ESTIMATEGET,
 			"message":  utils.Recode2Text(utils.RESPMSG_SUCCESS_ESTIMATEGET),
-			"filename": fileName + ".pdf",
+			"filename": fileName + "_納品書_" + *deliveryDataInfo.CustomerName + "様_" + *deliveryDataInfo.ProjectName + ".pdf",
 		},
 	}
 }

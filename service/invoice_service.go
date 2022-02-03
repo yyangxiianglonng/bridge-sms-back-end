@@ -15,6 +15,12 @@ type InvoiceService interface {
 	GetInvoice(invoiceCode string) []*model.Invoice
 	SaveInvoice(invoice model.Invoice) bool
 	UpdateInvoice(invoiceCode string, invoice model.Invoice) bool
+	GetInvoiceDetails(invoiceCode string) []*model.InvoiceDetail
+	ExistInvoiceDetail(invoiceDetail model.InvoiceDetail) bool
+	GetInvoiceDetail(invoiceDetailsCode string) []*model.InvoiceDetail
+	SaveInvoiceDetail(invoiceDetail model.InvoiceDetail) bool
+	UpdateInvoiceDetail(invoiceDetailsCode string, invoiceDetail model.InvoiceDetail) bool
+	DeleteInvoiceDetail(invoiceDetailsCode string, invoiceDetail model.InvoiceDetail) bool
 }
 
 /**
@@ -82,5 +88,59 @@ func (in *invoiceService) SaveInvoice(invoice model.Invoice) bool {
  */
 func (in *invoiceService) UpdateInvoice(invoiceCode string, invoice model.Invoice) bool {
 	_, err := in.Engine.Where("invoice_code = ?", invoiceCode).Update(&invoice)
+	return err == nil
+}
+
+/**
+ * 获取某个请求下面所有请求详细列表服务
+ */
+func (in *invoiceService) GetInvoiceDetails(invoiceCode string) (invoiceDetailList []*model.InvoiceDetail) {
+	err := in.Engine.Where("invoice_code = ?", invoiceCode).Asc("index").Find(&invoiceDetailList)
+
+	if err != nil {
+		panic(err.Error())
+	}
+	return
+}
+
+func (in *invoiceService) ExistInvoiceDetail(invoiceDetail model.InvoiceDetail) bool {
+	has, err := in.Engine.Exist(&invoiceDetail)
+	if err != nil {
+		panic(err.Error())
+	}
+	return has
+}
+
+func (in *invoiceService) GetInvoiceDetail(invoiceDetailsCode string) (invoiceDetail []*model.InvoiceDetail) {
+	err := in.Engine.Where("invoice_details_code = ?", invoiceDetailsCode).Find(&invoiceDetail)
+
+	if err != nil {
+		panic(err.Error())
+	}
+	return
+}
+
+/**
+ * 保存请求详细服务
+ */
+func (in *invoiceService) SaveInvoiceDetail(invoiceDetail model.InvoiceDetail) bool {
+	_, err := in.Engine.Insert(&invoiceDetail)
+	return err == nil
+}
+
+/**
+ * 更新请求详细服务
+ */
+func (in *invoiceService) UpdateInvoiceDetail(invoiceDetailsCode string, invoiceDetail model.InvoiceDetail) bool {
+	_, err := in.Engine.Where("invoice_details_code = ?", invoiceDetailsCode).Update(&invoiceDetail)
+	return err == nil
+}
+
+/**
+ * 删除请求详细服务
+ */
+func (in *invoiceService) DeleteInvoiceDetail(invoiceDetailsCode string, invoiceDetail model.InvoiceDetail) bool {
+	_, err := in.Engine.Where("estimate_details_code = ?", invoiceDetailsCode).Update(&invoiceDetail)
+	_, err = in.Engine.Where("estimate_details_code = ?", invoiceDetailsCode).Delete(&invoiceDetail)
 	return err == nil
 }

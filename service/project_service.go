@@ -3,7 +3,6 @@ package service
 import (
 	"main/model"
 
-	"github.com/kataras/iris/v12"
 	"xorm.io/xorm"
 )
 
@@ -71,7 +70,6 @@ func (pr *projectService) ExistProject(project model.Project) bool {
 	if err != nil {
 		panic(err.Error())
 	}
-	iris.New().Logger().Info(has)
 	return has
 }
 

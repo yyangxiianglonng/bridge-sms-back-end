@@ -97,7 +97,7 @@ func (uc *UserController) Post() mvc.Result {
 		}
 	}
 
-	token, err := utils.GenerateToken(userEntity.UserName, utils.HashAndSalt([]byte(userEntity.PassWord)))
+	token, err := utils.GenerateToken(userEntity.UserName, utils.HashAndSalt([]byte(userEntity.PassWord)), "1")
 	if err != nil {
 		iris.New().Logger().Error(COMMENT + err.Error())
 		return mvc.Response{

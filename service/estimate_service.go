@@ -3,7 +3,6 @@ package service
 import (
 	"main/model"
 
-	"github.com/kataras/iris/v12"
 	"xorm.io/xorm"
 )
 
@@ -73,7 +72,6 @@ func (es *estimateService) GetEstimate(estimateCode string) (estimate []*model.E
 	err := es.Engine.Where("estimate_code = ?", estimateCode).Find(&estimate)
 
 	if err != nil {
-		iris.New().Logger().Error(err.Error())
 		panic(err.Error())
 	}
 	return
@@ -86,7 +84,6 @@ func (es *estimateService) SearchEstimates(searchInfo model.Estimate) (estimate 
 	err := es.Engine.Where("estimate_code = ?", 0).Find(&estimate, searchInfo)
 
 	if err != nil {
-		iris.New().Logger().Error(err.Error())
 		panic(err.Error())
 	}
 	return

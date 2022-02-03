@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"main/middleware"
 	"main/model"
 	"main/service"
 	"main/utils"
@@ -19,7 +20,7 @@ type ProjectController struct {
 
 func (pr *ProjectController) BeforeActivation(ba mvc.BeforeActivation) {
 	//通过project_code获取对应的案件
-	ba.Handle("GET", "/one/{project_code}", "GetOneByProjectCode")
+	ba.Handle("GET", "/one/{project_code}", "GetOneByProjectCode", middleware.Author)
 	//通过project_code获取对应的时间线数据
 	ba.Handle("GET", "/timeline/{project_code}", "GetTimelineByProjectCode")
 }
@@ -83,18 +84,18 @@ func (pr *ProjectController) Get() mvc.Result {
 func (pr *ProjectController) GetOneByProjectCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/project/one/{project_code} Controller:ProjectController" + " "
 	iris.New().Logger().Info(COMMENT + "Start")
-	// token := pr.Context.GetHeader("Authorization")
-	// claim, err := utils.ParseToken(token)
+	token := pr.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
 
-	// if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
-	// 	return mvc.Response{
-	// 		Object: map[string]interface{}{
-	// 			"status":  utils.RECODE_UNLOGIN,
-	// 			"type":    utils.RESPMSG_ERROR_SESSION,
-	// 			"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
-	// 		},
-	// 	}
-	// }
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
 
 	projectCode := pr.Context.Params().Get("project_code")
 	project := pr.ProjectService.GetProject(projectCode)

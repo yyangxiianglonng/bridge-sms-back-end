@@ -9,43 +9,45 @@ import (
  */
 type Estimate struct {
 	Id                int64     `xorm:"pk unique autoincr" json:"id"`
-	EstimateCode      *string   `json:"estimate_code"`
-	EstimateName      *string   `json:"estimate_name"`
-	ProjectCode       *string   `json:"project_code"`
-	ProjectName       *string   `json:"project_name"`
-	CustomerName      *string   `json:"customer_name"`
-	EstimateStartDate time.Time `json:"estimate_start_date"`
-	EstimateEndDate   time.Time `json:"estimate_end_date"`
-	Work1             *string   `json:"work1"`
-	Work2             *string   `json:"work2"`
-	Work3             *string   `json:"work3"`
-	Deliverables1     *string   `json:"deliverables1"`
-	Deliverables2     *string   `json:"deliverables2"`
-	Deliverables3     *string   `json:"deliverables3"`
-	Media1            *string   `json:"media1"`
-	Media2            *string   `json:"media2"`
-	Media3            *string   `json:"media3"`
-	Quantity1         *string   `json:"quantity1"`
-	Quantity2         *string   `json:"quantity2"`
-	Quantity3         *string   `json:"quantity3"`
-	DeliveryDate1     *string   `json:"delivery_date1"`
-	DeliveryDate2     *string   `json:"delivery_date2"`
-	DeliveryDate3     *string   `json:"delivery_date3"`
-	WorkSpace         *string   `json:"work_space"`
-	SubTotal          *string   `json:"sub_total"`
-	Tax               *string   `json:"tax"`
-	Total             *string   `json:"total"`
-	Supplement        *string   `json:"supplement"`
-	Remarks           *string   `json:"remarks"`
-	PaymentConditions *string   `json:"payment_conditions"`
-	Other             *string   `json:"other"`
-	EstimatePdfNum    *string   `json:"estimate_pdf_num"`
-	CreatedAt         time.Time `xorm:"created" json:"created_at"`
-	CreatedBy         *string   `json:"created_by"`
-	ModifiedAt        time.Time `xorm:"updated" json:"modified_at"`
-	ModifiedBy        *string   `json:"modified_by"`
-	DeletedAt         time.Time `xorm:"deleted" json:"deleted_at"`
-	DeletedBy         *string   `json:"deleted_by"`
+	EstimateCode      *string   `xorm:"comment('見積コード')" json:"estimate_code"`
+	EstimateName      *string   `xorm:"comment('見積名')" json:"estimate_name"`
+	ProjectCode       *string   `xorm:"comment('案件コード')" json:"project_code"`
+	ProjectName       *string   `xorm:"comment('案件名')" json:"project_name"`
+	CustomerName      *string   `xorm:"comment('得意先名')" json:"customer_name"`
+	EstimateStartDate time.Time `xorm:"comment('見積開始日')" json:"estimate_start_date"`
+	EstimateEndDate   time.Time `xorm:"comment('見積終了日')" json:"estimate_end_date"`
+	Work1             *string   `xorm:"comment('作業内容①')" json:"work1"`
+	Work2             *string   `xorm:"comment('作業内容②')" json:"work2"`
+	Work3             *string   `xorm:"comment('作業内容③')" json:"work3"`
+	Deliverables1     *string   `xorm:"comment('成果物①')" json:"deliverables1"`
+	Deliverables2     *string   `xorm:"comment('成果物②')" json:"deliverables2"`
+	Deliverables3     *string   `xorm:"comment('成果物③')" json:"deliverables3"`
+	Media1            *string   `xorm:"comment('媒体①')" json:"media1"`
+	Media2            *string   `xorm:"comment('媒体②')" json:"media2"`
+	Media3            *string   `xorm:"comment('媒体③')" json:"media3"`
+	Quantity1         *string   `xorm:"comment('部数/数量①')" json:"quantity1"`
+	Quantity2         *string   `xorm:"comment('部数/数量②')" json:"quantity2"`
+	Quantity3         *string   `xorm:"comment('部数/数量③')" json:"quantity3"`
+	DeliveryDate1     *string   `xorm:"comment('納品予定日①')" json:"delivery_date1"`
+	DeliveryDate2     *string   `xorm:"comment('納品予定日②')" json:"delivery_date2"`
+	DeliveryDate3     *string   `xorm:"comment('納品予定日③')" json:"delivery_date3"`
+	WorkSpace         *string   `xorm:"comment('作業場所')" json:"work_space"`
+	SubTotal          *string   `xorm:"comment('見積合計金額')" json:"sub_total"`
+	Tax               *string   `xorm:"comment('消費税')" json:"tax"`
+	Total             *string   `xorm:"comment('税込合計金額')" json:"total"`
+	InitialTotal      *string   `xorm:"comment('イニシャル合計')" json:"initial_total"`
+	RunningTotal      *string   `xorm:"comment('ランニング合計')" json:"running_total"`
+	Supplement        *string   `xorm:"comment('補足事項')" json:"supplement"`
+	Remarks           *string   `xorm:"comment('得意先名')" json:"remarks"`
+	PaymentConditions *string   `xorm:"comment('支払条件')" json:"payment_conditions"`
+	Other             *string   `xorm:"comment('その他費用')" json:"other"`
+	EstimatePdfNum    *string   `xorm:"comment('見積書No.')" json:"estimate_pdf_num"`
+	CreatedAt         time.Time `xorm:"created comment('作成時間')" json:"created_at"`
+	CreatedBy         *string   `xorm:"comment('作成者')" json:"created_by"`
+	ModifiedAt        time.Time `xorm:"updated comment('更新時間')" json:"modified_at"`
+	ModifiedBy        *string   `xorm:"comment('更新者')" json:"modified_by"`
+	DeletedAt         time.Time `xorm:"deleted comment('削除時間')" json:"deleted_at"`
+	DeletedBy         *string   `xorm:"comment('削除者')" json:"deleted_by"`
 }
 
 /**
@@ -105,6 +107,8 @@ func (estimate *Estimate) EstimateToRespDesc() (respInfo interface{}) {
 		"sub_total":           estimate.SubTotal,
 		"tax":                 estimate.Tax,
 		"total":               estimate.Total,
+		"initial_total":       estimate.InitialTotal,
+		"running_total":       estimate.RunningTotal,
 		"supplement":          estimate.Supplement,
 		"remarks":             estimate.Remarks,
 		"payment_conditions":  estimate.PaymentConditions,

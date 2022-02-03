@@ -1,8 +1,9 @@
 package utils
 
 import (
-	jwt "github.com/dgrijalva/jwt-go"
 	"main/config"
+
+	jwt "github.com/dgrijalva/jwt-go"
 
 	"time"
 )
@@ -12,17 +13,19 @@ var jwtSecret = []byte(config.InitConfig().JwtSecret)
 type Claims struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+	Leave    string `json:"leave"`
 	jwt.StandardClaims
 }
 
 // 产生token的函数
-func GenerateToken(username, password string) (string, error) {
+func GenerateToken(username, password, leave string) (string, error) {
 	nowTime := time.Now()
 	expireTime := nowTime.Add(8 * time.Hour)
 
 	claims := Claims{
 		username,
 		password,
+		leave,
 		jwt.StandardClaims{
 			ExpiresAt: expireTime.Unix(),
 			Issuer:    "bridge",

@@ -2,6 +2,7 @@ package service
 
 import (
 	"main/model"
+
 	"xorm.io/xorm"
 )
 
@@ -35,7 +36,7 @@ type acceptanceService struct {
 * 请求某个案件下的所有检收列表数据
  */
 func (ac *acceptanceService) GetAcceptances(projectCode string) (acceptanceList []*model.Acceptance) {
-	err := ac.Engine.Where("is_delete = ?", 0).And("project_code = ?", projectCode).Find(&acceptanceList)
+	err := ac.Engine.Where("project_code = ?", projectCode).Find(&acceptanceList)
 
 	if err != nil {
 		panic(err.Error())
@@ -47,7 +48,7 @@ func (ac *acceptanceService) GetAcceptances(projectCode string) (acceptanceList 
  * 通过检收CD获取检收信息
  */
 func (ac *acceptanceService) GetAcceptance(acceptanceCode string) (acceptance []*model.Acceptance) {
-	err := ac.Engine.Where("is_delete = ?", 0).And("acceptance_code = ?", acceptanceCode).Find(&acceptance)
+	err := ac.Engine.Where("acceptance_code = ?", acceptanceCode).Find(&acceptance)
 
 	if err != nil {
 		panic(err.Error())

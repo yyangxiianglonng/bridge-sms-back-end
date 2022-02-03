@@ -58,7 +58,7 @@ func NewEstimatePdf(estimate []*model.Estimate, estimateDetail []*model.Estimate
 	Deliverables(&pdf, estimateInfo)
 	WorkSpace(&pdf, estimateInfo)
 	EstimateDetail(&pdf, estimateInfo, estimateDetailInfoInitial, estimateDetailInfoRunning)
-	if len(*estimateInfo.EstimatePdfNum) != 0 {
+	if estimateInfo.EstimatePdfNum != nil {
 		pdf.WritePdf(config.InitConfig().FilePath + "/pdf/estimate/" + (*estimateInfo.EstimatePdfNum)[0:4] + "-" + (*estimateInfo.EstimatePdfNum)[4:6] + "-" + (*estimateInfo.EstimatePdfNum)[6:8] + "/" + *estimateInfo.EstimatePdfNum + "_見積書_" + *estimateInfo.CustomerName + "様_" + *estimateInfo.EstimateName + ".pdf")
 	} else {
 		now := time.Now().Format("2006-01-02")
@@ -121,7 +121,7 @@ func TitleEstimate(pdf *gopdf.GoPdf, info model.Estimate) {
 	pdf.Cell(nil, "見積書No.")                //見積No.
 	pdf.SetX(497)
 	pdf.SetY(90)
-	pdf.Cell(nil, *info.EstimatePdfNum) //Esh210831145627
+	pdf.Cell(nil, *info.EstimatePdfNum)
 	pdf.SetX(477)
 	pdf.SetY(105)
 	pdf.Cell(nil, info.CreatedAt.Format("2006年01月02日")) //16/09/2021

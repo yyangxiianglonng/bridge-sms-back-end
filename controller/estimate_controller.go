@@ -295,6 +295,8 @@ type AddEstimateEntity struct {
 	SubTotal          string    `json:"sub_total"`
 	Tax               string    `json:"tax"`
 	Total             string    `json:"total"`
+	InitialTotal      string    `json:"initial_total"`
+	RunningTotal      string    `json:"running_total"`
 	Supplement        string    `json:"supplement"`
 	Remarks           string    `json:"remarks"`
 	PaymentConditions string    `json:"payment_conditions"`
@@ -367,6 +369,8 @@ func (es *EstimateController) Post() mvc.Result {
 	estimateInfo.SubTotal = &estimateEntity.SubTotal
 	estimateInfo.Tax = &estimateEntity.Tax
 	estimateInfo.Total = &estimateEntity.Total
+	estimateInfo.InitialTotal = &estimateEntity.InitialTotal
+	estimateInfo.RunningTotal = &estimateEntity.RunningTotal
 	estimateInfo.Supplement = &estimateEntity.Supplement
 	estimateInfo.Remarks = &estimateEntity.Remarks
 	estimateInfo.PaymentConditions = &estimateEntity.PaymentConditions
@@ -459,6 +463,8 @@ func (es *EstimateController) Put() mvc.Result {
 	estimateInfo.SubTotal = &estimateEntity.SubTotal
 	estimateInfo.Tax = &estimateEntity.Tax
 	estimateInfo.Total = &estimateEntity.Total
+	estimateInfo.InitialTotal = &estimateEntity.InitialTotal
+	estimateInfo.RunningTotal = &estimateEntity.RunningTotal
 	estimateInfo.Supplement = &estimateEntity.Supplement
 	estimateInfo.Remarks = &estimateEntity.Remarks
 	estimateInfo.PaymentConditions = &estimateEntity.PaymentConditions
@@ -491,7 +497,7 @@ func (es *EstimateController) Put() mvc.Result {
 /**
  * url: /v1/estimate/detail/all/{estimate_code}
  * type：GET
- * descs：获取所有见积功能
+ * descs：获取所有见积详细功能
  */
 func (es *EstimateController) GetAllByEstimateCode() mvc.Result {
 	const COMMENT = "method:Get url:/v1/estimate/detail Controller:EstimateController" + " "

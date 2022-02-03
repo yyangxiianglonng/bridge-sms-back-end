@@ -2,6 +2,7 @@ package service
 
 import (
 	"main/model"
+
 	"xorm.io/xorm"
 )
 
@@ -36,7 +37,7 @@ type orderService struct {
  */
 func (or *orderService) GetOrders(projectCode string) (orderList []*model.Order) {
 
-	err := or.Engine.Where("is_delete = ?", 0).And("project_code = ?", projectCode).Find(&orderList)
+	err := or.Engine.Where("project_code = ?", projectCode).Find(&orderList)
 
 	if err != nil {
 		panic(err.Error())
@@ -48,7 +49,7 @@ func (or *orderService) GetOrders(projectCode string) (orderList []*model.Order)
  * 通过注文CD获取注文信息
  */
 func (or *orderService) GetOrder(orderCode string) (order []*model.Order) {
-	err := or.Engine.Where("is_delete = ?", 0).And("order_code = ?", orderCode).Find(&order)
+	err := or.Engine.Where("order_code = ?", orderCode).Find(&order)
 
 	if err != nil {
 		panic(err.Error())

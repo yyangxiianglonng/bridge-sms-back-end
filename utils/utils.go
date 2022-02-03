@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"time"
 
+	uuid "github.com/iris-contrib/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -44,4 +45,9 @@ func RandSeq() string {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
 	return string(b)
+}
+
+func Uuid() uuid.UUID {
+	uuid, _ := uuid.NewV4()
+	return uuid
 }

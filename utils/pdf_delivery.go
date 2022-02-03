@@ -38,11 +38,11 @@ func NewDeliveryPdf(delivery []*model.Delivery) {
 	TitleDelivery(&pdf, deliveryInfo)
 	BodyDelivery(&pdf, deliveryInfo)
 
-	if len(deliveryInfo.DeliveryPdfNum) != 0 {
-		pdf.WritePdf(config.InitConfig().FilePath + "/pdf/delivery/" + deliveryInfo.DeliveryPdfNum[0:4] + "-" + deliveryInfo.DeliveryPdfNum[4:6] + "-" + deliveryInfo.DeliveryPdfNum[6:8] + "/" + deliveryInfo.DeliveryPdfNum + ".pdf")
+	if deliveryInfo.DeliveryPdfNum != nil {
+		pdf.WritePdf(config.InitConfig().FilePath + "/pdf/delivery/" + (*deliveryInfo.DeliveryPdfNum)[0:4] + "-" + (*deliveryInfo.DeliveryPdfNum)[4:6] + "-" + (*deliveryInfo.DeliveryPdfNum)[6:8] + "/" + *deliveryInfo.DeliveryPdfNum + "_納品書_" + *deliveryInfo.CustomerName + "様_" + *deliveryInfo.ProjectName + ".pdf")
 	} else {
 		now := time.Now().Format("2006-01-02")
-		pdf.WritePdf(config.InitConfig().FilePath + "/pdf/delivery/" + now + "/" + deliveryInfo.DeliveryPdfNum + ".pdf")
+		pdf.WritePdf(config.InitConfig().FilePath + "/pdf/delivery/" + now + "/" + *deliveryInfo.DeliveryPdfNum + "_納品書_" + *deliveryInfo.CustomerName + "様_" + *deliveryInfo.ProjectName + ".pdf")
 	}
 }
 
@@ -61,10 +61,10 @@ func CustomerDelivery(pdf *gopdf.GoPdf, info model.Delivery) {
 	customerName := info.CustomerName
 	pdf.SetX(cu.x1) //x座標指定
 	pdf.SetY(cu.y1) //y座標指定
-	pdf.Cell(nil, customerName)
+	pdf.Cell(nil, *customerName)
 	//〇〇御中
-	pdf.SetX(cu.x1 + 10 + float64(len(customerName))*5) //x座標指定
-	pdf.SetY(cu.y1)                                     //y座標指定
+	pdf.SetX(cu.x1 + 10 + float64(len(*customerName))*5) //x座標指定
+	pdf.SetY(cu.y1)                                      //y座標指定
 	pdf.Cell(nil, "御中")
 }
 
@@ -82,8 +82,8 @@ func CompanyDelivery(pdf *gopdf.GoPdf, info model.Delivery) {
 	pdf.Cell(nil, "納品書No.") //見積No.
 	pdf.SetX(co.x1 + 100)
 	pdf.SetY(co.y1 - 60)
-	pdf.Cell(nil, info.DeliveryPdfNum)
-	pdf.SetX(co.x1 + 40)
+	pdf.Cell(nil, *info.DeliveryPdfNum)
+	pdf.SetX(co.x1 + 78)
 	pdf.SetY(co.y1 - 45)
 	pdf.Cell(nil, info.CreatedAt.Format("2006年01月02日")) //16/09/2021
 
@@ -145,7 +145,7 @@ func BodyDelivery(pdf *gopdf.GoPdf, info model.Delivery) {
 	pdf.SetY(bd.y1 - 50)                   //y座標指定
 	pdf.Cell(nil, "1.件名")
 	pdf.SetX(bd.x1 + 60)
-	pdf.Cell(nil, info.ProjectName)
+	pdf.Cell(nil, *info.ProjectName)
 	//2.成果物
 	pdf.SetX(bd.x1)      //x座標指定
 	pdf.SetY(bd.y1 - 20) //y座標指定
@@ -177,27 +177,27 @@ func BodyDelivery(pdf *gopdf.GoPdf, info model.Delivery) {
 
 	pdf.SetX(bd.x1 + 1)
 	pdf.SetY(bd.y1 + bd.h + 6)
-	pdf.Cell(nil, info.Deliverables1)
+	pdf.Cell(nil, *info.Deliverables1)
 	pdf.SetX(310)
-	pdf.Cell(nil, info.Quantity1)
+	pdf.Cell(nil, *info.Quantity1)
 	pdf.SetX(341)
-	pdf.Cell(nil, info.Memo1)
+	pdf.Cell(nil, *info.Memo1)
 
 	pdf.SetX(bd.x1 + 1)
 	pdf.SetY(bd.y1 + bd.h*2 + 6)
-	pdf.Cell(nil, info.Deliverables2)
+	pdf.Cell(nil, *info.Deliverables2)
 	pdf.SetX(310)
-	pdf.Cell(nil, info.Quantity2)
+	pdf.Cell(nil, *info.Quantity2)
 	pdf.SetX(341)
-	pdf.Cell(nil, info.Memo2)
+	pdf.Cell(nil, *info.Memo2)
 
 	pdf.SetX(bd.x1 + 1)
 	pdf.SetY(bd.y1 + bd.h*3 + 6)
-	pdf.Cell(nil, info.Deliverables3)
+	pdf.Cell(nil, *info.Deliverables3)
 	pdf.SetX(310)
-	pdf.Cell(nil, info.Quantity3)
+	pdf.Cell(nil, *info.Quantity3)
 	pdf.SetX(341)
-	pdf.Cell(nil, info.Memo3)
+	pdf.Cell(nil, *info.Memo3)
 
 	//3.備考
 	pdf.SetFont("Shippori Mincho", "", 12) //フォント、文字サイズ指定
@@ -205,7 +205,7 @@ func BodyDelivery(pdf *gopdf.GoPdf, info model.Delivery) {
 	pdf.SetY(bd.y1 + 100)                  //y座標指定
 	pdf.Cell(nil, "3.備考")
 
-	arr_str := strings.Split(info.Remarks, "\n")
+	arr_str := strings.Split(*info.Remarks, "\n")
 	for index, str := range arr_str {
 		pdf.SetFont("Shippori Mincho", "", 10) //フォント、文字サイズ指定
 		pdf.SetX(bd.x1)

@@ -1,13 +1,18 @@
 package controller
 
 import (
-	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/mvc"
-	"github.com/kataras/iris/v12/sessions"
+	"io/ioutil"
+	"main/config"
 	"main/model"
 	"main/service"
 	"main/utils"
+	"os"
+	"strconv"
 	"time"
+
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/mvc"
+	"github.com/kataras/iris/v12/sessions"
 )
 
 func (ac *AcceptanceController) BeforeActivation(ba mvc.BeforeActivation) {
@@ -15,6 +20,10 @@ func (ac *AcceptanceController) BeforeActivation(ba mvc.BeforeActivation) {
 	ba.Handle("GET", "/all/{project_code}", "GetAllByProjectCode")
 	//通过order_code获取对应的注文列表
 	ba.Handle("GET", "/one/{acceptance_code}", "GetOneByAcceptanceCode")
+	//生成见积书PDF文件
+	ba.Handle("GET", "/pdf/{acceptance_code}", "DrawPdfByAcceptanceCode")
+	//下载检收书PDF文件
+	ba.Handle("GET", "/download/{destination_name}", "PdfDownload")
 }
 
 type AcceptanceController struct {
@@ -194,24 +203,24 @@ func (ac *AcceptanceController) Post() mvc.Result {
 
 	var acceptanceInfo model.Acceptance
 
-	acceptanceInfo.AcceptanceCode = acceptanceEntity.AcceptanceCode
-	acceptanceInfo.EstimateCode = acceptanceEntity.EstimateCode
-	acceptanceInfo.DeliveryCode = acceptanceEntity.DeliveryCode
-	acceptanceInfo.ProjectCode = acceptanceEntity.ProjectCode
-	acceptanceInfo.ProjectName = acceptanceEntity.ProjectName
-	acceptanceInfo.CustomerName = acceptanceEntity.CustomerName
-	acceptanceInfo.Deliverables1 = acceptanceEntity.Deliverables1
-	acceptanceInfo.Deliverables2 = acceptanceEntity.Deliverables2
-	acceptanceInfo.Deliverables3 = acceptanceEntity.Deliverables3
-	acceptanceInfo.Quantity1 = acceptanceEntity.Quantity1
-	acceptanceInfo.Quantity2 = acceptanceEntity.Quantity2
-	acceptanceInfo.Quantity3 = acceptanceEntity.Quantity3
-	acceptanceInfo.Memo1 = acceptanceEntity.Memo1
-	acceptanceInfo.Memo2 = acceptanceEntity.Memo2
-	acceptanceInfo.Memo3 = acceptanceEntity.Memo3
-	acceptanceInfo.AcceptanceDate = acceptanceEntity.AcceptanceDate
-	acceptanceInfo.Remarks = acceptanceEntity.Remarks
-	acceptanceInfo.CreatedBy = acceptanceEntity.CreatedBy
+	acceptanceInfo.AcceptanceCode = &acceptanceEntity.AcceptanceCode
+	acceptanceInfo.EstimateCode = &acceptanceEntity.EstimateCode
+	acceptanceInfo.DeliveryCode = &acceptanceEntity.DeliveryCode
+	acceptanceInfo.ProjectCode = &acceptanceEntity.ProjectCode
+	acceptanceInfo.ProjectName = &acceptanceEntity.ProjectName
+	acceptanceInfo.CustomerName = &acceptanceEntity.CustomerName
+	acceptanceInfo.Deliverables1 = &acceptanceEntity.Deliverables1
+	acceptanceInfo.Deliverables2 = &acceptanceEntity.Deliverables2
+	acceptanceInfo.Deliverables3 = &acceptanceEntity.Deliverables3
+	acceptanceInfo.Quantity1 = &acceptanceEntity.Quantity1
+	acceptanceInfo.Quantity2 = &acceptanceEntity.Quantity2
+	acceptanceInfo.Quantity3 = &acceptanceEntity.Quantity3
+	acceptanceInfo.Memo1 = &acceptanceEntity.Memo1
+	acceptanceInfo.Memo2 = &acceptanceEntity.Memo2
+	acceptanceInfo.Memo3 = &acceptanceEntity.Memo3
+	acceptanceInfo.AcceptanceDate = &acceptanceEntity.AcceptanceDate
+	acceptanceInfo.Remarks = &acceptanceEntity.Remarks
+	acceptanceInfo.CreatedBy = &acceptanceEntity.CreatedBy
 
 	isSuccess := ac.AcceptanceService.SaveAcceptance(acceptanceInfo)
 	if !isSuccess {
@@ -272,25 +281,24 @@ func (ac *AcceptanceController) Put() mvc.Result {
 
 	var acceptanceInfo model.Acceptance
 
-	acceptanceInfo.Id = acceptanceEntity.Id
-	acceptanceInfo.AcceptanceCode = acceptanceEntity.AcceptanceCode
-	acceptanceInfo.EstimateCode = acceptanceEntity.EstimateCode
-	acceptanceInfo.DeliveryCode = acceptanceEntity.DeliveryCode
-	acceptanceInfo.ProjectCode = acceptanceEntity.ProjectCode
-	acceptanceInfo.ProjectName = acceptanceEntity.ProjectName
-	acceptanceInfo.CustomerName = acceptanceEntity.CustomerName
-	acceptanceInfo.Deliverables1 = acceptanceEntity.Deliverables1
-	acceptanceInfo.Deliverables2 = acceptanceEntity.Deliverables2
-	acceptanceInfo.Deliverables3 = acceptanceEntity.Deliverables3
-	acceptanceInfo.Quantity1 = acceptanceEntity.Quantity1
-	acceptanceInfo.Quantity2 = acceptanceEntity.Quantity2
-	acceptanceInfo.Quantity3 = acceptanceEntity.Quantity3
-	acceptanceInfo.Memo1 = acceptanceEntity.Memo1
-	acceptanceInfo.Memo2 = acceptanceEntity.Memo2
-	acceptanceInfo.Memo3 = acceptanceEntity.Memo3
-	acceptanceInfo.AcceptanceDate = acceptanceEntity.AcceptanceDate
-	acceptanceInfo.Remarks = acceptanceEntity.Remarks
-	acceptanceInfo.ModifiedBy = acceptanceEntity.ModifiedBy
+	acceptanceInfo.AcceptanceCode = &acceptanceEntity.AcceptanceCode
+	acceptanceInfo.EstimateCode = &acceptanceEntity.EstimateCode
+	acceptanceInfo.DeliveryCode = &acceptanceEntity.DeliveryCode
+	acceptanceInfo.ProjectCode = &acceptanceEntity.ProjectCode
+	acceptanceInfo.ProjectName = &acceptanceEntity.ProjectName
+	acceptanceInfo.CustomerName = &acceptanceEntity.CustomerName
+	acceptanceInfo.Deliverables1 = &acceptanceEntity.Deliverables1
+	acceptanceInfo.Deliverables2 = &acceptanceEntity.Deliverables2
+	acceptanceInfo.Deliverables3 = &acceptanceEntity.Deliverables3
+	acceptanceInfo.Quantity1 = &acceptanceEntity.Quantity1
+	acceptanceInfo.Quantity2 = &acceptanceEntity.Quantity2
+	acceptanceInfo.Quantity3 = &acceptanceEntity.Quantity3
+	acceptanceInfo.Memo1 = &acceptanceEntity.Memo1
+	acceptanceInfo.Memo2 = &acceptanceEntity.Memo2
+	acceptanceInfo.Memo3 = &acceptanceEntity.Memo3
+	acceptanceInfo.AcceptanceDate = &acceptanceEntity.AcceptanceDate
+	acceptanceInfo.Remarks = &acceptanceEntity.Remarks
+	acceptanceInfo.ModifiedBy = &acceptanceEntity.ModifiedBy
 
 	isSuccess := ac.AcceptanceService.UpdateAcceptance(acceptanceEntity.AcceptanceCode, acceptanceInfo)
 	if !isSuccess {
@@ -311,5 +319,131 @@ func (ac *AcceptanceController) Put() mvc.Result {
 			"type":    utils.RESPMSG_SUCCESS_ACCEPTANCEUPDATE,
 			"message": utils.Recode2Text(utils.RESPMSG_SUCCESS_ACCEPTANCEUPDATE),
 		},
+	}
+}
+
+/**
+ * url: /v1/acceptance/pdf/{acceptance_code}
+ * type：GET
+ * descs：生成检收书PDF功能
+ */
+func (ac *AcceptanceController) DrawPdfByAcceptanceCode() mvc.Result {
+	const COMMENT = "method:Get url:/v1/acceptance/pdf/{acceptance_code} Controller:AcceptanceController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+	token := ac.Context.GetHeader("Authorization")
+	claim, err := utils.ParseToken(token)
+
+	if !((err == nil) && (time.Now().Unix() <= claim.ExpiresAt)) {
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_UNLOGIN,
+				"type":    utils.RESPMSG_ERROR_SESSION,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_SESSION),
+			},
+		}
+	}
+
+	//从前端获取acceptanceCode,并通过acceptanceCode获取acceptance数据
+	acceptanceCode := ac.Context.Params().Get("acceptance_code")
+	acceptanceData := ac.AcceptanceService.GetAcceptance(acceptanceCode)
+
+	if acceptanceData == nil {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ACCEPTANCEGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ACCEPTANCEGET),
+			},
+		}
+	}
+
+	var acceptanceDataInfo model.Acceptance
+	for _, item := range acceptanceData {
+		acceptanceDataInfo = *item
+	}
+
+	var fileName string
+
+	if acceptanceDataInfo.AcceptancePdfNum != nil {
+		fileName = *acceptanceDataInfo.AcceptancePdfNum
+	} else {
+		now := time.Now().Format("2006-01-02")
+		_, err = os.Stat(config.InitConfig().FilePath + "/pdf/acceptance/" + now)
+		if err != nil {
+			os.Mkdir(config.InitConfig().FilePath+"/pdf/acceptance/"+now, os.ModePerm)
+		}
+
+		fileInfo, _ := ioutil.ReadDir(config.InitConfig().FilePath + "/pdf/acceptance/" + now)
+
+		var files []string
+		for _, file := range fileInfo {
+			files = append(files, file.Name())
+		}
+
+		if len(files) < 10 {
+			fileName = time.Now().Format("20060102") + "0" + strconv.Itoa(len(files)+1)
+		} else {
+			fileName = time.Now().Format("20060102") + strconv.Itoa(len(files)+1)
+		}
+	}
+
+	var acceptanceInfo model.Acceptance
+	acceptanceInfo.AcceptancePdfNum = &fileName
+	isSuccess := ac.AcceptanceService.UpdateAcceptance(acceptanceCode, acceptanceInfo)
+	if !isSuccess {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ACCEPTANCEUPDATE,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ACCEPTANCEUPDATE),
+			},
+		}
+	}
+
+	acceptance := ac.AcceptanceService.GetAcceptance(acceptanceCode)
+
+	if acceptance == nil {
+		iris.New().Logger().Error(COMMENT + "ERR")
+		return mvc.Response{
+			Object: map[string]interface{}{
+				"status":  utils.RECODE_FAIL,
+				"type":    utils.RESPMSG_ERROR_ACCEPTANCEGET,
+				"message": utils.Recode2Text(utils.RESPMSG_ERROR_ACCEPTANCEGET),
+			},
+		}
+	}
+
+	utils.NewAcceptancePdf(acceptance)
+	//返回pdf文件
+	iris.New().Logger().Info(COMMENT + "End")
+
+	return mvc.Response{
+		Object: map[string]interface{}{
+			"status":   utils.RECODE_OK,
+			"type":     utils.RESPMSG_SUCCESS_ACCEPTANCEGET,
+			"message":  utils.Recode2Text(utils.RESPMSG_SUCCESS_ACCEPTANCEGET),
+			"filename": fileName + "_検収書_" + *acceptanceDataInfo.CustomerName + "様_" + *acceptanceDataInfo.ProjectName + ".pdf",
+		},
+	}
+
+}
+
+/**
+ * url: /v1/acceptance/download/{destination_name}
+ * type：GET
+ * descs：下载见积书PDF功能
+ */
+func (ac *AcceptanceController) PdfDownload() {
+	const COMMENT = "method:Get url:/v1/acceptance/download/{destination_name} Controller:AcceptanceController" + " "
+	iris.New().Logger().Info(COMMENT + "Start")
+	destinationName := ac.Context.Params().Get("destination_name")
+	// fileName := config.InitConfig().FilePath + "/pdf/estimate/" + time.Now().Format("2006-01-02") + "/" + destinationName
+	fileName := config.InitConfig().FilePath + "/pdf/acceptance/" + destinationName[0:4] + "-" + destinationName[4:6] + "-" + destinationName[6:8] + "/" + destinationName
+	err := ac.Context.SendFile(fileName, destinationName)
+	if err != nil {
+		iris.New().Logger().Error(err.Error())
+		panic(err.Error())
 	}
 }
