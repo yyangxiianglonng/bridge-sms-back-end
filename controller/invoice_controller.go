@@ -666,8 +666,8 @@ func (in *InvoiceController) DeleteDetail() mvc.Result {
 	invoiceDetailInfo.ModifiedBy = &invoiceDetailEntity.ModifiedBy
 	invoiceDetailInfo.DeletedBy = &invoiceDetailEntity.DeletedBy
 
-	estimate_details_code := in.Context.Params().Get("estimate_details_code")
-	isSuccess := in.InvoiceService.DeleteInvoiceDetail(estimate_details_code, invoiceDetailInfo)
+	invoiceDetailsCode := in.Context.Params().Get("invoice_details_code")
+	isSuccess := in.InvoiceService.DeleteInvoiceDetail(invoiceDetailsCode, invoiceDetailInfo)
 
 	if !isSuccess {
 		iris.New().Logger().Error(COMMENT + "ERR")

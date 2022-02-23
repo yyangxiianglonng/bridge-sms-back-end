@@ -140,7 +140,7 @@ func (in *invoiceService) UpdateInvoiceDetail(invoiceDetailsCode string, invoice
  * 删除请求详细服务
  */
 func (in *invoiceService) DeleteInvoiceDetail(invoiceDetailsCode string, invoiceDetail model.InvoiceDetail) bool {
-	_, err := in.Engine.Where("estimate_details_code = ?", invoiceDetailsCode).Update(&invoiceDetail)
-	_, err = in.Engine.Where("estimate_details_code = ?", invoiceDetailsCode).Delete(&invoiceDetail)
+	_, err := in.Engine.Where("invoice_details_code = ?", invoiceDetailsCode).Update(&invoiceDetail)
+	_, err = in.Engine.Where("invoice_details_code = ?", invoiceDetailsCode).Delete(&invoiceDetail)
 	return err == nil
 }
