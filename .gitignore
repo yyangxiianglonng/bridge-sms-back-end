@@ -1,6 +1,5 @@
 .DS_Store
-/static/file
-
+.pdf
 # local env files
 .env.local
 .env.*.local
