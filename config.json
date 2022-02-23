@@ -8,7 +8,7 @@
   "img_path": "/Users/yangxianglong/go/Vue_Iris/back-end/static/img/",
   "data_base": {
     "drive": "mysql",
-    "host": "192.168.3.110",
+    "host": "192.168.3.107",
     "port": "3306",
     "user": "root",
     "pwd": "root",
