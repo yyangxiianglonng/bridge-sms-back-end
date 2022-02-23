@@ -1,5 +1,6 @@
 .DS_Store
-/static/
+/static/file
+/static/static
 
 # local env files
 .env.local
