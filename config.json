@@ -3,9 +3,9 @@
   "host": "0.0.0.0",
   "port": "80",
   "static": "/Users/yangxianglong/Projects/WebstormProjects/bridgef/dist",
-  "file_path": "/Users/yangxianglong/go/Vue_Iris/back-end/static/file",
-  "font_path": "/Users/yangxianglong/go/Vue_Iris/back-end/static/font/",
-  "img_path": "/Users/yangxianglong/go/Vue_Iris/back-end/static/img/",
+  "file_path": "/Users/yangxianglong/Projects/GolandProjects/bridge-sms-back-end/static/file",
+  "font_path": "/Users/yangxianglong/Projects/GolandProjects/bridge-sms-back-end/static/font/",
+  "img_path": "/Users/yangxianglong/Projects/GolandProjects/bridge-sms-back-end/static/img/",
   "data_base": {
     "drive": "mysql",
     "host": "192.168.3.107",

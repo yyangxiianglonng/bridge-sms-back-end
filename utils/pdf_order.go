@@ -168,12 +168,25 @@ func CompanyInvoiceOrder(pdf *gopdf.GoPdf, info model.Order) {
 	pdf.Cell(nil, "（社名）株式会社ブリッジ") //邮编
 
 	pdf.SetFont("Shippori Mincho", "", 12) //フォント、文字サイズ指定
-	pdf.SetX(co.x1 - 220)
-	pdf.SetY(co.y1 + 85)
-	pdf.Cell(nil, "件名（業務名）："+*info.EstimateName)
 
-	pdf.SetLineWidth(1.5)
-	pdf.Line(co.x1-220, co.y1+98, co.x1-220+co.w, co.y1+98)
+	if len(*info.EstimateName) > 75 {
+		cutSize := CutStringAsSize(*info.EstimateName)
+
+		pdf.SetX(co.x1 - 220)
+		pdf.SetY(co.y1 + 85)
+		pdf.Cell(nil, "件名（業務名）："+(*info.EstimateName)[0:cutSize])
+		pdf.SetX(co.x1 - 125)
+		pdf.SetY(co.y1 + 99)
+		pdf.Cell(nil, (*info.EstimateName)[cutSize:])
+		pdf.SetLineWidth(1.5)
+		pdf.Line(co.x1-220, co.y1+113, co.x1-220+co.w, co.y1+113)
+	} else {
+		pdf.SetX(co.x1 - 220)
+		pdf.SetY(co.y1 + 85)
+		pdf.Cell(nil, "件名（業務名）："+*info.EstimateName)
+		pdf.SetLineWidth(1.5)
+		pdf.Line(co.x1-220, co.y1+98, co.x1-220+co.w, co.y1+98)
+	}
 
 	pdf.SetX(co.x1 - 220)
 	pdf.SetY(co.y1 + 120)
@@ -227,12 +240,25 @@ func CompanyOrder(pdf *gopdf.GoPdf, info model.Order) {
 	pdf.Cell(nil, "印")
 
 	pdf.SetFont("Shippori Mincho", "", 12) //フォント、文字サイズ指定
-	pdf.SetX(co.x1 - 170)
-	pdf.SetY(co.y1 + 85)
-	pdf.Cell(nil, "件名（業務名）："+*info.EstimateName)
 
-	pdf.SetLineWidth(1.5)
-	pdf.Line(co.x1-170, co.y1+98, co.x1-170+co.w, co.y1+98)
+	if len(*info.EstimateName) > 75 {
+		cutSize := CutStringAsSize(*info.EstimateName)
+
+		pdf.SetX(co.x1 - 170)
+		pdf.SetY(co.y1 + 85)
+		pdf.Cell(nil, "件名（業務名）："+(*info.EstimateName)[0:cutSize])
+		pdf.SetX(co.x1 - 75)
+		pdf.SetY(co.y1 + 99)
+		pdf.Cell(nil, (*info.EstimateName)[cutSize:])
+		pdf.SetLineWidth(1.5)
+		pdf.Line(co.x1-170, co.y1+113, co.x1-170+co.w, co.y1+113)
+	} else {
+		pdf.SetX(co.x1 - 170)
+		pdf.SetY(co.y1 + 85)
+		pdf.Cell(nil, "件名（業務名）："+*info.EstimateName)
+		pdf.SetLineWidth(1.5)
+		pdf.Line(co.x1-170, co.y1+98, co.x1-170+co.w, co.y1+98)
+	}
 
 	pdf.SetX(co.x1 - 170)
 	pdf.SetY(co.y1 + 120)
@@ -307,14 +333,14 @@ func BodyInvoiceOrder(pdf *gopdf.GoPdf, info model.Order) {
 	if len(*info.Personnel2) != 0 {
 		pdf.SetX(bo.x1 + 111)
 		pdf.SetY(bo.y1 + 101)
-		pdf.Cell(nil, "（御社）"+*info.Personnel1+"様")
+		pdf.Cell(nil, "（御社）"+*info.Personnel1)
 		pdf.SetX(bo.x1 + 111)
 		pdf.SetY(bo.y1 + 131)
 		pdf.Cell(nil, "（弊社）"+*info.Personnel2)
 	} else {
 		pdf.SetX(bo.x1 + 111)
 		pdf.SetY(bo.y1 + 101)
-		pdf.Cell(nil, "（御社）"+*info.Personnel1+"様")
+		pdf.Cell(nil, "（御社）"+*info.Personnel1)
 	}
 
 	// personnel_str := strings.Split(*info.Personnel1, "\n")
@@ -465,7 +491,7 @@ func BodyOrder(pdf *gopdf.GoPdf, info model.Order) {
 	if len(*info.Personnel2) != 0 {
 		pdf.SetX(bo.x1 + 111)
 		pdf.SetY(bo.y1 + 101)
-		pdf.Cell(nil, "（御社）"+*info.Personnel2+"様")
+		pdf.Cell(nil, "（御社）"+*info.Personnel2)
 		pdf.SetX(bo.x1 + 111)
 		pdf.SetY(bo.y1 + 131)
 		pdf.Cell(nil, "（弊社）"+*info.Personnel1)

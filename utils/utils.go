@@ -4,6 +4,7 @@ import (
 	"log"
 	"math/rand"
 	"time"
+	"unicode/utf8"
 
 	uuid "github.com/iris-contrib/go.uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -50,4 +51,18 @@ func RandSeq() string {
 func Uuid() uuid.UUID {
 	uuid, _ := uuid.NewV4()
 	return uuid
+}
+
+// 自动选择合适的位置截取字符串
+func CutStringAsSize(str string) (cutSize int) {
+	cutSize = 0
+	for len(str) > 0 {
+		_, size := utf8.DecodeRuneInString(str)
+		cutSize += size
+		if cutSize >= 72 {
+			break
+		}
+		str = str[size:]
+	}
+	return
 }
