@@ -54,12 +54,12 @@ func Uuid() uuid.UUID {
 }
 
 // 自动选择合适的位置截取字符串
-func CutStringAsSize(str string) (cutSize int) {
+func CutStringAsSize(str string, cutLen int) (cutSize int) {
 	cutSize = 0
 	for len(str) > 0 {
 		_, size := utf8.DecodeRuneInString(str)
 		cutSize += size
-		if cutSize >= 72 {
+		if cutSize >= cutLen {
 			break
 		}
 		str = str[size:]

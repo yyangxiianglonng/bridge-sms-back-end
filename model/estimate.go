@@ -55,7 +55,7 @@ type Estimate struct {
  */
 type EstimateDetail struct {
 	Id                  int64     `xorm:"pk unique autoincr" json:"id"`
-	Index               *string   `json:"index"`
+	Index               *int      `json:"index"`
 	EstimateDetailsCode *string   `json:"estimate_details_code"`
 	EstimateCode        *string   `json:"estimate_code"`
 	ProductCode         *string   `json:"product_code"`

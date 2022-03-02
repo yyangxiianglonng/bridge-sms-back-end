@@ -170,7 +170,7 @@ func CompanyInvoiceOrder(pdf *gopdf.GoPdf, info model.Order) {
 	pdf.SetFont("Shippori Mincho", "", 12) //フォント、文字サイズ指定
 
 	if len(*info.EstimateName) > 75 {
-		cutSize := CutStringAsSize(*info.EstimateName)
+		cutSize := CutStringAsSize(*info.EstimateName, 72)
 
 		pdf.SetX(co.x1 - 220)
 		pdf.SetY(co.y1 + 85)
@@ -208,18 +208,22 @@ func CompanyOrder(pdf *gopdf.GoPdf, info model.Order) {
 	pdf.SetX(co.x1)
 	pdf.SetY(co.y1)
 	if len(*info.CustomerAddress) > 120 {
-		pdf.Cell(nil, "（住所）"+(*info.CustomerAddress)[:60]) //地址
+		cutSize1 := CutStringAsSize(*info.CustomerAddress, 60)
+		pdf.Cell(nil, "（住所）"+(*info.CustomerAddress)[:cutSize1]) //地址
 		pdf.SetX(co.x1 + 48)
 		pdf.SetY(co.y1 + 15)
-		pdf.Cell(nil, (*info.CustomerAddress)[60:120]) //地址
+
+		cutSize2 := CutStringAsSize((*info.CustomerAddress)[cutSize1:], 60)
+		pdf.Cell(nil, (*info.CustomerAddress)[cutSize1:cutSize1+cutSize2]) //地址
 		pdf.SetX(co.x1 + 48)
 		pdf.SetY(co.y1 + 30)
-		pdf.Cell(nil, (*info.CustomerAddress)[120:]) //地址
+		pdf.Cell(nil, (*info.CustomerAddress)[cutSize1+cutSize2:]) //地址
 	} else if len(*info.CustomerAddress) > 60 {
-		pdf.Cell(nil, "（住所）"+(*info.CustomerAddress)[:60]) //地址
+		cutSize := CutStringAsSize(*info.CustomerAddress, 60)
+		pdf.Cell(nil, "（住所）"+(*info.CustomerAddress)[:cutSize]) //地址
 		pdf.SetX(co.x1 + 48)
 		pdf.SetY(co.y1 + 15)
-		pdf.Cell(nil, (*info.CustomerAddress)[60:]) //地址
+		pdf.Cell(nil, (*info.CustomerAddress)[cutSize:]) //地址
 	} else {
 		pdf.Cell(nil, "（住所）"+*info.CustomerAddress) //地址
 	}
@@ -242,7 +246,7 @@ func CompanyOrder(pdf *gopdf.GoPdf, info model.Order) {
 	pdf.SetFont("Shippori Mincho", "", 12) //フォント、文字サイズ指定
 
 	if len(*info.EstimateName) > 75 {
-		cutSize := CutStringAsSize(*info.EstimateName)
+		cutSize := CutStringAsSize(*info.EstimateName, 72)
 
 		pdf.SetX(co.x1 - 170)
 		pdf.SetY(co.y1 + 85)
